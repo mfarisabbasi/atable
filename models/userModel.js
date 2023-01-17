@@ -29,6 +29,11 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  email_verified: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   activationToken: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
