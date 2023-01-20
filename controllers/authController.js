@@ -1,6 +1,5 @@
 // Packages Import
 import asyncHandler from "express-async-handler";
-import { OAuth2Client } from "google-auth-library";
 
 // Models Import
 import User from "../models/userModel.js";
@@ -64,28 +63,6 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc Create New User With Google
-// @route POST /api/v1/auth/new/google
-// @access Public
-const createNewUserWithGoogle = asyncHandler(async (req, res) => {
-  try {
-    const client = new OAuth2Client();
 
-    const ticket = await client.verifyIdToken({
-      idToken: req.body.idToken,
-      audience: process.env.GOOGLE_OAUTH_CLIENT_ID,
-    });
 
-    const payload = ticket.getPayload();
-
-    if (payload.email_verified) {
-      res.status(200).json({ success: true });
-    } else {
-      res.status(401).json({ success: false });
-    }
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-export { createNewUserWithEmail, createNewUserWithGoogle };
+export { createNewUserWithEmail };
