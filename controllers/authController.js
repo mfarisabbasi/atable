@@ -49,7 +49,7 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
     if (newUser) {
       return res.status(201).json({
         success: true,
-        access_token: generateToken(newUser._id),
+
         user: newUser._doc,
       });
     } else {
@@ -63,6 +63,31 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc Authenticate user with email and password
+// @route POST /api/v1/auth/email
+// @access Public
+const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user && (await user.matchPassword(password))) {
+      res.status(200).json({
+        success: true,
+        access_token: generateToken(user._id),
+        user_details: user._doc,
+      });
+    } else {
+      res.status(401).json({ error: "Invalid email or password" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 export { createNewUserWithEmail };
