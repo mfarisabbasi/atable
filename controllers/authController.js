@@ -12,13 +12,24 @@ import { generateToken } from "../functions/tokenFunctions.js";
 // @access Public
 const createNewUserWithEmail = asyncHandler(async (req, res) => {
   try {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, phoneNumber, password } = req.body;
 
-    if (!fullName || !email || !password) {
+    if (!fullName || !email || !phoneNumber || !password) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
     const checkIfUserExist = await User.findOne({ email });
+
+    const checkIfUserExistWithSamePhoneNumber = await User.findOne({
+      phoneNumber,
+    });
+
+    if (checkIfUserExistWithSamePhoneNumber) {
+      return res.status(400).json({
+        account_exist: true,
+        error: "Account already exist with this phone number",
+      });
+    }
 
     if (checkIfUserExist && checkIfUserExist.provider === "email") {
       return res.status(400).json({
@@ -44,7 +55,12 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
       });
     }
 
-    const newUser = await User.create({ fullName, email, password });
+    const newUser = await User.create({
+      fullName,
+      email,
+      phoneNumber,
+      password,
+    });
 
     if (newUser) {
       return res.status(201).json({
