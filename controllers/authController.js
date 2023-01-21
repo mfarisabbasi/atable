@@ -90,4 +90,4 @@ const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
   }
 });
 
-export { createNewUserWithEmail };
+export { createNewUserWithEmail, authUserWithEmailAndPassword };
