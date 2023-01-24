@@ -24,4 +24,25 @@ const sendVerificationEmail = (to, url) => {
   });
 };
 
-export { sendVerificationEmail };
+const sendWelcomeEmail = (to, name) => {
+  const data = {
+    from: "welcome@atable.ma",
+    to,
+    subject: "Welcome To A-Table",
+    html: `<h1>Welcome ${name},</h1><br>
+    <p>Thank you for signing up to A-Table</p>`,
+  };
+
+  mg.messages().send(data, (error, _) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log({
+        success: true,
+        message: "Welcome Email Sent",
+      });
+    }
+  });
+};
+
+export { sendVerificationEmail, sendWelcomeEmail };

@@ -9,7 +9,10 @@ import {
   generateEmailVerificationToken,
   generateToken,
 } from "../functions/tokenFunctions.js";
-import { sendVerificationEmail } from "../functions/emailFunctions.js";
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+} from "../functions/emailFunctions.js";
 
 // @desc Create New User With Email
 // @route POST /api/v1/auth/new/email
@@ -132,19 +135,19 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
 
     await user.save();
 
-    // try {
-    //   sendEmail(user.email, "Welcome To A-Table", `Welcome ${user.fullName}`);
-    //   return res.status(200).json({
-    //     success: true,
-    //     message: "Account Activated, Welcome email sent",
-    //   });
-    // } catch (error) {
-    //   user.activationToken = undefined;
-    //   return res.status(500).json({
-    //     success: false,
-    //     message: "Something went wrong while verifying user's email",
-    //   });
-    // }
+    try {
+      sendWelcomeEmail(user.email, user.fullName);
+      return res.status(200).json({
+        success: true,
+        message: "Account Activated, Welcome email sent",
+      });
+    } catch (error) {
+      user.activationToken = undefined;
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong while verifying user's email",
+      });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
