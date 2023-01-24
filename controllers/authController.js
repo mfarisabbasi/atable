@@ -5,7 +5,10 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 
 // Functions Import
-import { generateToken } from "../functions/tokenFunctions.js";
+import {
+  generateEmailVerificationToken,
+  generateToken,
+} from "../functions/tokenFunctions.js";
 import { sendEmail } from "../functions/emailFunctions.js";
 
 // @desc Create New User With Email
@@ -61,6 +64,7 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
       email,
       phoneNumber,
       password,
+      activationToken: generateEmailVerificationToken(),
     });
 
     if (newUser) {
