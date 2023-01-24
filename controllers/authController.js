@@ -6,6 +6,7 @@ import User from "../models/userModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
+import { sendEmail } from "../functions/emailFunctions.js";
 
 // @desc Create New User With Email
 // @route POST /api/v1/auth/new/email
@@ -63,9 +64,13 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
     });
 
     if (newUser) {
+      await sendEmail(
+        newUser.email,
+        "Verify your email",
+        "Click on this link to verify your email address"
+      );
       return res.status(201).json({
         success: true,
-
         user: newUser._doc,
       });
     } else {
