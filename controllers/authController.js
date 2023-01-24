@@ -9,7 +9,7 @@ import {
   generateEmailVerificationToken,
   generateToken,
 } from "../functions/tokenFunctions.js";
-import { sendEmail } from "../functions/emailFunctions.js";
+import { sendVerificationEmail } from "../functions/emailFunctions.js";
 
 // @desc Create New User With Email
 // @route POST /api/v1/auth/new/email
@@ -70,11 +70,8 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
     if (newUser) {
       const activateUrl = `http://127.0.0.1:6000/api/v1/auth/email/verify/${newUser.activationToken}`;
 
-      await sendEmail(
-        newUser.email,
-        "Verify your email",
-        `Click on the link below to verify your email address ${activateUrl}`
-      );
+      sendVerificationEmail(newUser.email, activateUrl);
+
       return res.status(201).json({
         success: true,
         user: newUser._doc,
@@ -135,19 +132,19 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
 
     await user.save();
 
-    try {
-      sendEmail(user.email, "Welcome To A-Table", `Welcome ${user.fullName}`);
-      return res.status(200).json({
-        success: true,
-        message: "Account Activated, Welcome email sent",
-      });
-    } catch (error) {
-      user.activationToken = undefined;
-      return res.status(500).json({
-        success: false,
-        message: "Something went wrong while verifying user's email",
-      });
-    }
+    // try {
+    //   sendEmail(user.email, "Welcome To A-Table", `Welcome ${user.fullName}`);
+    //   return res.status(200).json({
+    //     success: true,
+    //     message: "Account Activated, Welcome email sent",
+    //   });
+    // } catch (error) {
+    //   user.activationToken = undefined;
+    //   return res.status(500).json({
+    //     success: false,
+    //     message: "Something went wrong while verifying user's email",
+    //   });
+    // }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
