@@ -117,4 +117,44 @@ const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
   }
 });
 
-export { createNewUserWithEmail, authUserWithEmailAndPassword };
+// @desc Verify user email
+// @route PATCH /api/v1/auth/email/verify/:token
+// @access Public
+const verifyUserEmail = asyncHandler(async (req, res) => {
+  try {
+    const token = req.params.token;
+
+    const user = await User.findOne({ activationToken: token });
+
+    if (!user) {
+      res.status(400).json({ error: "Token is invalid or expired" });
+    }
+
+    user.email_verified = true;
+    user.activationToken = undefined;
+
+    await user.save();
+
+    try {
+      sendEmail(user.email, "Welcome To A-Table", `Welcome ${user.fullName}`);
+      return res.status(200).json({
+        success: true,
+        message: "Account Activated, Welcome email sent",
+      });
+    } catch (error) {
+      user.activationToken = undefined;
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong while verifying user's email",
+      });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+export {
+  createNewUserWithEmail,
+  authUserWithEmailAndPassword,
+  verifyUserEmail,
+};
