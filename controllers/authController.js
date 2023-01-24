@@ -68,10 +68,12 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
     });
 
     if (newUser) {
+      const activateUrl = `http://127.0.0.1:6000/api/v1/auth/email/verify/${newUser.activationToken}`;
+
       await sendEmail(
         newUser.email,
         "Verify your email",
-        "Click on this link to verify your email address"
+        `Click on the link below to verify your email address ${activateUrl}`
       );
       return res.status(201).json({
         success: true,
