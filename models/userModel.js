@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 
 const userSchema = mongoose.Schema({
   provider: {
