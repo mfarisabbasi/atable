@@ -65,7 +65,13 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
 
       return res.status(201).json({
         success: true,
-        user: newUser._doc,
+        user_details: {
+          id: newUser._id,
+          provider: newUser.provider,
+          fullName: newUser.fullName,
+          email: newUser.email,
+          email_verified: newUser.email_verified,
+        },
       });
     } else {
       return res.status(400).json({
@@ -131,7 +137,13 @@ const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
       res.status(200).json({
         success: true,
         access_token: generateToken(user._id),
-        user_details: user._doc,
+        user_details: {
+          id: user._id,
+          provider: user.provider,
+          fullName: user.fullName,
+          email: user.email,
+          email_verified: user.email_verified,
+        },
       });
     } else {
       res.status(401).json({ error: "Invalid email or password" });
