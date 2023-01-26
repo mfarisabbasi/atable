@@ -27,6 +27,29 @@ const sendVerificationEmail = (to, url) => {
   });
 };
 
+const sendPasswordResetEmail = (to, url) => {
+  const data = {
+    from: "reset-password@atable.ma",
+    to,
+    subject: "Reset your password",
+    html: `<h3>Password Reset Request</h3>
+    <br>
+    <p>Click on <a href=${url}>this</a> link to reset your password</p>
+    `,
+  };
+
+  mg.messages().send(data, (error, _) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log({
+        success: true,
+        message: "Password Reset Link Sent",
+      });
+    }
+  });
+};
+
 const sendWelcomeEmail = (to, name) => {
   const data = {
     from: "welcome@atable.ma",
@@ -48,4 +71,4 @@ const sendWelcomeEmail = (to, name) => {
   });
 };
 
-export { sendVerificationEmail, sendWelcomeEmail };
+export { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail };

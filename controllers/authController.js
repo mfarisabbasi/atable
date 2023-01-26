@@ -1,5 +1,6 @@
 // Packages Import
 import asyncHandler from "express-async-handler";
+import crypto from "crypto";
 
 // Models Import
 import User from "../models/userModel.js";
@@ -10,6 +11,7 @@ import {
   generateToken,
 } from "../functions/tokenFunctions.js";
 import {
+  sendPasswordResetEmail,
   sendVerificationEmail,
   sendWelcomeEmail,
 } from "../functions/emailFunctions.js";
@@ -94,7 +96,7 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
     const user = await User.findOne({ activationToken: token });
 
     if (!user) {
-      res.status(400).json({ error: "Token is invalid or expired" });
+      return res.status(400).json({ error: "Token is invalid or expired" });
     }
 
     user.email_verified = true;
@@ -114,6 +116,81 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
         success: false,
         message: "Something went wrong while verifying user's email",
       });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+// @desc Forgot Password
+// @route POST /api/v1/auth/email/forgot
+// @access Public
+const forgotPassword = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(404).json({ error: "No account found" });
+    }
+
+    const resetToken = user.createPasswordResetToken();
+
+    await user.save({ validateBefore: false });
+
+    const resetUrl = `http://127.0.0.1:6000/api/v1/auth/email/forgot/${resetToken}`;
+
+    try {
+      sendPasswordResetEmail(user.email, resetUrl);
+      return res.status(200).json({
+        success: true,
+        message: "We've sent you a link to reset your password",
+      });
+    } catch (error) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBefore: false });
+      return res
+        .status(400)
+        .json({ error: "Error sending password reset email" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+// @desc Reset Password
+// @route PATCH /api/v1/auth/email/reset/:token
+// @access Public
+const resetPassword = asyncHandler(async (req, res) => {
+  try {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const userBasedOnToken = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!userBasedOnToken) {
+      return res.status(400).json({ error: "Token is invalid or expired" });
+    }
+
+    userBasedOnToken.password = req.body.password;
+    userBasedOnToken.passwordResetToken = undefined;
+    userBasedOnToken.passwordResetExpires = undefined;
+
+    const passwordChanged = await userBasedOnToken.save();
+
+    if (passwordChanged) {
+      return res
+        .status(200)
+        .json({ success: true, message: "Password successfully changed" });
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while resetting password" });
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -146,10 +223,10 @@ const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
         },
       });
     } else {
-      res.status(401).json({ error: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -157,4 +234,6 @@ export {
   createNewUserWithEmail,
   authUserWithEmailAndPassword,
   verifyUserEmail,
+  forgotPassword,
+  resetPassword,
 };
