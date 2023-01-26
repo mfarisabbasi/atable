@@ -9,7 +9,10 @@ const sendVerificationEmail = (to, url) => {
     from: "verify-your-email@atable.ma",
     to,
     subject: "Verify your email",
-    text: `Click on the link below to verify your email address ${url}`,
+    html: `<h3>Thank you for signing up.</h3>
+    <br>
+    <p>Click on <a href=${url}>this</a> link below to verify your email address.</p>
+    `,
   };
 
   mg.messages().send(data, (error, _) => {
@@ -29,7 +32,7 @@ const sendWelcomeEmail = (to, name) => {
     from: "welcome@atable.ma",
     to,
     subject: "Welcome To A-Table",
-    html: `<h1>Welcome ${name},</h1><br>
+    html: `<h3>Welcome ${name},</h3><br>
     <p>Thank you for signing up to A-Table</p>`,
   };
 
