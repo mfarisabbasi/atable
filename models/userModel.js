@@ -24,16 +24,6 @@ const userSchema = mongoose.Schema({
       }
     },
   },
-  phoneNumber: {
-    type: String,
-    required: true,
-    validate: {
-      validator: function (v) {
-        return /^(00212|\+212|0)[67]\d{8}$/.test(v);
-      },
-      message: "{VALUE} is not a valid phone number",
-    },
-  },
   password: {
     type: String,
     required: true,
