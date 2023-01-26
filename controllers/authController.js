@@ -72,6 +72,7 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
           provider: newUser.provider,
           fullName: newUser.fullName,
           email: newUser.email,
+          activationToken: newUser.activationToken,
           email_verified: newUser.email_verified,
         },
       });
