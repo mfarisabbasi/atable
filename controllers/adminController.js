@@ -45,38 +45,36 @@ const createNewAdmin = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc Authenticate user with email and password
-// @route POST /api/v1/auth/email
-// @access Public
-// const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
+// @desc Authenticate admin
+// @route POST /api/v1/management/auth
+// @access Private
+const authAdmin = asyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-//     if (!email || !password) {
-//       return res.status(400).json({ error: "All fields are required" });
-//     }
+    if (!email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
-//     const user = await User.findOne({ email });
+    const admin = await Admin.findOne({ email });
 
-//     if (user && (await user.matchPassword(password))) {
-//       res.status(200).json({
-//         success: true,
-//         access_token: generateToken(user._id),
-//         user_details: {
-//           id: user._id,
-//           provider: user.provider,
-//           fullName: user.fullName,
-//           email: user.email,
-//           email_verified: user.email_verified,
-//           loyalty_count: newUser.loyalty_count,
-//         },
-//       });
-//     } else {
-//       return res.status(401).json({ error: "Invalid email or password" });
-//     }
-//   } catch (error) {
-//     return res.status(400).json({ error: error.message });
-//   }
-// });
+    if (admin && (await admin.matchPassword(password))) {
+      return res.status(200).json({
+        success: true,
+        access_token: generateToken(admin._id),
+        admin_details: {
+          id: admin._id,
+          fullName: admin.fullName,
+          email: admin.email,
+          super_admin: admin.super_admin,
+        },
+      });
+    } else {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
 
-export { createNewAdmin };
+export { createNewAdmin, authAdmin };
