@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 
 // Models Import
 import Admin from "../models/adminModel.js";
+import Users from "../models/userModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
@@ -77,4 +78,25 @@ const authAdmin = asyncHandler(async (req, res) => {
   }
 });
 
-export { createNewAdmin, authAdmin };
+// @desc Delete All Users
+// @route DELETE /api/v1/management/users/delete/all
+// @access Private/SuperAdmin
+const deleteAllUsers = asyncHandler(async (req, res) => {
+  try {
+    const deleteAllUsers = await Users.deleteMany({});
+
+    if (deleteAllUsers) {
+      return res
+        .status(200)
+        .json({ success: true, message: "All users has been deleted" });
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while deleting all users" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { createNewAdmin, authAdmin, deleteAllUsers };
