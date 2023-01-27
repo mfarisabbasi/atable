@@ -21,6 +21,7 @@ import morgan from "morgan";
 // Route Imports Start
 
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 // Route Imports End
 
@@ -53,6 +54,7 @@ app.get("/api/v1/", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/management", adminRoutes);
 
 // API End
 
