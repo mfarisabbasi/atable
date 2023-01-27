@@ -195,7 +195,7 @@ const resetPassword = asyncHandler(async (req, res) => {
         .json({ error: "Something went wrong while resetting password" });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -213,7 +213,7 @@ const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         access_token: generateToken(user._id),
         user_details: {
