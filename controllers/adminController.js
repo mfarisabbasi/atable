@@ -9,7 +9,7 @@ import { generateToken } from "../functions/tokenFunctions.js";
 
 // @desc Create new admin
 // @route POST /api/v1/management/new
-// @access Private/Admin
+// @access Private/SuperAdmin
 const createNewAdmin = asyncHandler(async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
