@@ -35,6 +35,11 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+    loyalty_count: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     activationToken: String,
     passwordResetToken: String,
     passwordResetExpires: Date,

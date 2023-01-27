@@ -74,6 +74,7 @@ const createNewUserWithEmail = asyncHandler(async (req, res) => {
           email: newUser.email,
           activationToken: newUser.activationToken,
           email_verified: newUser.email_verified,
+          loyalty_count: newUser.loyalty_count,
         },
       });
     } else {
@@ -221,6 +222,7 @@ const authUserWithEmailAndPassword = asyncHandler(async (req, res) => {
           fullName: user.fullName,
           email: user.email,
           email_verified: user.email_verified,
+          loyalty_count: newUser.loyalty_count,
         },
       });
     } else {
