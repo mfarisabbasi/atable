@@ -1,7 +1,7 @@
 import mailgun from "mailgun-js";
 
-const API_KEY = "dbc332075997c5112114aa0f94d7acc4-eb38c18d-f1e5f004";
-const DOMAIN = "sandbox38bd33f2890542db85984f7eedc914e5.mailgun.org";
+const API_KEY = "0e9c55257fb174c2b4b8d69d7a26dca2-c50a0e68-fe55cc45";
+const DOMAIN = "sandbox01172abaa00f4b469b88652a04246741.mailgun.org";
 const mg = mailgun({ apiKey: API_KEY, domain: DOMAIN });
 
 const sendVerificationEmail = (to, url) => {
