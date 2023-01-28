@@ -54,6 +54,10 @@ const restaurantSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "ResOwner",
     },
+    auto_approve: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
