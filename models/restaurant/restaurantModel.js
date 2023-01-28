@@ -58,6 +58,11 @@ const restaurantSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    subscription: {
+      type: String,
+      enum: ["Premium", "Advanced", "Basic"],
+      default: "Basic",
+    },
   },
   {
     timestamps: true,
