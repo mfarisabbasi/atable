@@ -52,7 +52,7 @@ const restaurantSchema = mongoose.Schema(
     ],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "resOwner",
+      ref: "ResOwner",
     },
   },
   {
