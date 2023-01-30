@@ -4,6 +4,7 @@ import asyncHandler from "express-async-handler";
 // Models Import
 import Admin from "../models/adminModel.js";
 import Users from "../models/userModel.js";
+import Restaurant from "../models/restaurant/restaurantModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
@@ -42,7 +43,7 @@ const createNewAdmin = asyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -99,4 +100,47 @@ const deleteAllUsers = asyncHandler(async (req, res) => {
   }
 });
 
-export { createNewAdmin, authAdmin, deleteAllUsers };
+// @desc Create new admin
+// @route POST /api/v1/management/restaurant/new
+// @access Private/Admin
+const createNewRestaurant = asyncHandler(async (req, res) => {
+  try {
+    const { name, cuisine, address, phoneNumber, openingHours, images } =
+      req.body;
+
+    if (
+      !name ||
+      !cuisine ||
+      !address ||
+      !phoneNumber ||
+      !openingHours ||
+      !images
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const newRestaurant = await Restaurant.create({
+      name,
+      cuisine,
+      address,
+      phoneNumber,
+      openingHours,
+      images,
+    });
+    if (newRestaurant) {
+      return res.status(201).json({
+        success: true,
+        message: "New Restaurant created successfully.",
+        restaurant_details: newRestaurant,
+      });
+    } else {
+      return res.status(201).json({
+        error: "Something went wrong while creating new restaurant",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { createNewAdmin, authAdmin, deleteAllUsers, createNewRestaurant };

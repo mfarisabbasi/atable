@@ -17,12 +17,10 @@ const restaurantSchema = mongoose.Schema(
     phoneNumber: {
       type: String,
       required: true,
-      validate: {
-        validator: function (v) {
-          return /^(00212|\+212|0)[67]\d{8}$/.test(v);
-        },
-        message: "{VALUE} is not a valid phone number",
-      },
+      match: [
+        /^(00212|\+212)(5|6|7)[0-9]{8}$/,
+        "Please enter a valid Morocco phone number",
+      ],
     },
     openingHours: {
       type: Map,
@@ -31,6 +29,7 @@ const restaurantSchema = mongoose.Schema(
     images: [{ type: String }],
     rating: {
       type: Number,
+      default: 0,
       min: 0,
       max: 5,
     },
