@@ -8,6 +8,10 @@ const resOwnerSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    restaurantName: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
