@@ -10,6 +10,7 @@ import {
   authAdmin,
   createNewAdmin,
   createNewRestaurant,
+  createNewRestaurantOwner,
   deleteAllUsers,
 } from "../controllers/adminController.js";
 
@@ -21,5 +22,6 @@ router.delete("/users/delete/all", superAdminMiddleware, deleteAllUsers);
 
 // Admin Restaurants Manager
 router.post("/restaurant/new", adminMiddleware, createNewRestaurant);
+router.post("/restaurant/owner/new", adminMiddleware, createNewRestaurantOwner);
 
 export default router;

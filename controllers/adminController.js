@@ -5,6 +5,7 @@ import asyncHandler from "express-async-handler";
 import Admin from "../models/adminModel.js";
 import Users from "../models/userModel.js";
 import Restaurant from "../models/restaurant/restaurantModel.js";
+import ResOwner from "../models/restaurant/resOwnerModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
@@ -40,6 +41,49 @@ const createNewAdmin = asyncHandler(async (req, res) => {
     } else {
       return res.status(400).json({
         error: "Something went wrong while creating new Admin",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+// @desc Create new restaurant owner
+// @route POST /api/v1/management/restaurant/owner/new
+// @access Private/Admin
+const createNewRestaurantOwner = asyncHandler(async (req, res) => {
+  try {
+    const { fullName, restaurantName, email, password } = req.body;
+
+    if (!fullName || !restaurantName || !email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const checkIfRestaurantNameExist = await ResOwner.findOne({
+      restaurantName,
+    });
+
+    if (checkIfRestaurantNameExist) {
+      return res
+        .status(400)
+        .json({ error: "Restaurant with this name already exist" });
+    }
+
+    const restaurantOwner = await ResOwner.create({
+      fullName,
+      restaurantName,
+      email,
+      password,
+    });
+
+    if (restaurantOwner) {
+      return res.status(201).json({
+        success: true,
+        message: "New Restaurant owner created successfully",
+      });
+    } else {
+      return res.status(400).json({
+        error: "Something went wrong while creating new restaurant owner",
       });
     }
   } catch (error) {
@@ -143,4 +187,10 @@ const createNewRestaurant = asyncHandler(async (req, res) => {
   }
 });
 
-export { createNewAdmin, authAdmin, deleteAllUsers, createNewRestaurant };
+export {
+  createNewAdmin,
+  authAdmin,
+  deleteAllUsers,
+  createNewRestaurant,
+  createNewRestaurantOwner,
+};
