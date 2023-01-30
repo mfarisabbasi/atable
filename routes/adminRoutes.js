@@ -1,7 +1,10 @@
 // Package Imports
 import express from "express";
 // Middleware Imports
-import { superAdminMiddleware } from "../middlewares/managementMiddlewares.js";
+import {
+  adminMiddleware,
+  superAdminMiddleware,
+} from "../middlewares/managementMiddlewares.js";
 // Controller Imports
 import {
   authAdmin,
@@ -17,6 +20,6 @@ router.post("/auth", authAdmin);
 router.delete("/users/delete/all", superAdminMiddleware, deleteAllUsers);
 
 // Admin Restaurants Manager
-router.post("/restaurant/new", createNewRestaurant);
+router.post("/restaurant/new", adminMiddleware, createNewRestaurant);
 
 export default router;

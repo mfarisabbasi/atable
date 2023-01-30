@@ -1,7 +1,10 @@
 import asyncHandler from "express-async-handler";
 import Admin from "../models/adminModel.js";
 import { verifyToken } from "../functions/tokenFunctions.js";
-import { superAdminMiddlewareError } from "../constants/superAdminConstants.js";
+import {
+  adminMiddlewareError,
+  superAdminMiddlewareError,
+} from "../constants/adminConstants.js";
 
 const superAdminMiddleware = asyncHandler(async (req, res, next) => {
   try {
@@ -30,4 +33,31 @@ const superAdminMiddleware = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { superAdminMiddleware };
+const adminMiddleware = asyncHandler(async (req, res, next) => {
+  try {
+    const token = req.header("auth-token");
+
+    if (!token) {
+      return res.status(401).json({ error: adminMiddlewareError });
+    }
+
+    const verified = verifyToken(token);
+
+    if (!verified) {
+      return res.status(401).json({ error: adminMiddlewareError });
+    }
+
+    const admin = await Admin.findById(verified.id).select("-password");
+    if (!admin) {
+      return res.status(401).json({ error: adminMiddlewareError });
+    }
+
+    req.user = verified.id;
+
+    next();
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+export { superAdminMiddleware, adminMiddleware };
