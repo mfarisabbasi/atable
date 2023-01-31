@@ -23,6 +23,7 @@ import morgan from "morgan";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import restaurantRoutes from "./routes/restaurantRoutes.js";
+import restaurantOwnerRoutes from "./routes/restaurantOwnerRoutes.js";
 
 // Route Imports End
 
@@ -57,6 +58,7 @@ app.get("/api/v1/", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/management", adminRoutes);
 app.use("/api/v1/restaurants", restaurantRoutes);
+app.use("/api/v1/restaurant", restaurantOwnerRoutes);
 
 // API End
 
