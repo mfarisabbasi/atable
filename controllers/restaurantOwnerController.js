@@ -77,7 +77,9 @@ const createNewMenu = asyncHandler(async (req, res) => {
       restaurant,
       { $push: { menu: newMenu._id } },
       { new: true }
-    ).populate("menu");
+    )
+      .populate({ path: "menu", model: "Menu" })
+      .populate({ path: "owner", model: "ResOwner", select: "-password" });
 
     if (updatedRestaurant) {
       return res
