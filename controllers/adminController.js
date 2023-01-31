@@ -53,25 +53,14 @@ const createNewAdmin = asyncHandler(async (req, res) => {
 // @access Private/Admin
 const createNewRestaurantOwner = asyncHandler(async (req, res) => {
   try {
-    const { fullName, restaurantName, email, password } = req.body;
+    const { fullName, email, password } = req.body;
 
-    if (!fullName || !restaurantName || !email || !password) {
+    if (!fullName || !email || !password) {
       return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const checkIfRestaurantNameExist = await ResOwner.findOne({
-      restaurantName,
-    });
-
-    if (checkIfRestaurantNameExist) {
-      return res
-        .status(400)
-        .json({ error: "Restaurant with this name already exist" });
     }
 
     const restaurantOwner = await ResOwner.create({
       fullName,
-      restaurantName,
       email,
       password,
     });

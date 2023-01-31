@@ -27,7 +27,7 @@ const authResOwner = asyncHandler(async (req, res) => {
         resOwner_details: {
           id: resOwner._id,
           fullName: resOwner.fullName,
-          restaurantName: resOwner.restaurantName,
+          restaurants: resOwner.restaurants,
           email: resOwner.email,
         },
       });
