@@ -67,8 +67,22 @@ const createNewMenu = asyncHandler(async (req, res) => {
       restaurant,
     });
 
-    if (newMenu) {
-      return res.status(201).json({ success: true, menu_details: newMenu });
+    if (!newMenu) {
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while creating new menu" });
+    }
+
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+      restaurant,
+      { $push: { menu: newMenu._id } },
+      { new: true }
+    ).populate("menu");
+
+    if (updatedRestaurant) {
+      return res
+        .status(201)
+        .json({ success: true, restaurant_details: updatedRestaurant });
     } else {
       return res
         .status(201)
