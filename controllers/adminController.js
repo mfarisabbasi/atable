@@ -80,6 +80,45 @@ const createNewRestaurantOwner = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc Add a owner to a restaurant
+// @route PATCH /api/v1/management/restaurant/:id/owner/add
+// @access Private/Admin
+const assignOwnerToRestaurant = asyncHandler(async (req, res) => {
+  try {
+    const { owner } = req.body;
+
+    if (!owner) {
+      return res.status(400).json({ error: "Owner is required" });
+    }
+
+    const resOwner = await ResOwner.findById(owner);
+
+    if (!resOwner) {
+      return res.status(404).json({ error: "Owner account not found" });
+    }
+
+    const restaurant = await Restaurant.findById(req.params.id);
+
+    if (!restaurant) {
+      return res.status(404).json({ error: "Restaurant not found" });
+    }
+
+    restaurant.owner = owner;
+
+    const updatedRestaurant = await restaurant.save();
+
+    if (updatedRestaurant) {
+      return res.status(200).json({ success: true, updatedRestaurant });
+    } else {
+      return res.status(400).json({
+        error: "Something went wrong while adding a new owner to a restaurant",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 // @desc Authenticate admin
 // @route POST /api/v1/management/auth
 // @access Private
@@ -182,4 +221,5 @@ export {
   deleteAllUsers,
   createNewRestaurant,
   createNewRestaurantOwner,
+  assignOwnerToRestaurant,
 };

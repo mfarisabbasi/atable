@@ -7,6 +7,7 @@ import {
 } from "../middlewares/managementMiddlewares.js";
 // Controller Imports
 import {
+  assignOwnerToRestaurant,
   authAdmin,
   createNewAdmin,
   createNewRestaurant,
@@ -23,5 +24,10 @@ router.delete("/users/delete/all", superAdminMiddleware, deleteAllUsers);
 // Admin Restaurants Manager
 router.post("/restaurant/new", adminMiddleware, createNewRestaurant);
 router.post("/restaurant/owner/new", adminMiddleware, createNewRestaurantOwner);
+router.patch(
+  "/restaurant/:id/owner/add",
+  adminMiddleware,
+  assignOwnerToRestaurant
+);
 
 export default router;
