@@ -3,9 +3,11 @@ import asyncHandler from "express-async-handler";
 
 // Models Import
 import ResOwner from "../models/restaurant/resOwnerModel.js";
+import Restaurant from "../models/restaurant/restaurantModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
+import Menu from "../models/restaurant/menuModel.js";
 
 // @desc Authenticate restaurant owner
 // @route POST /api/v1/restaurant/owner/auth
@@ -39,4 +41,41 @@ const authResOwner = asyncHandler(async (req, res) => {
   }
 });
 
-export { authResOwner };
+// @desc Create a new menu
+// @route POST /api/v1/restaurant/owner/menu/new
+// @access Private/RestaurantOwners
+const createNewMenu = asyncHandler(async (req, res) => {
+  try {
+    const { name, items, restaurant } = req.body;
+
+    if (!name || !restaurant) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const checkIfRestaurantExist = await Restaurant.findOne({
+      _id: restaurant,
+    });
+
+    if (!checkIfRestaurantExist) {
+      return res.status(404).json({ error: "Restaurant not found" });
+    }
+
+    const newMenu = await Menu.create({
+      name,
+      items,
+      restaurant,
+    });
+
+    if (newMenu) {
+      return res.status(201).json({ success: true, menu_details: newMenu });
+    } else {
+      return res
+        .status(201)
+        .json({ error: "Something went wrong while creating new menu" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { authResOwner, createNewMenu };
