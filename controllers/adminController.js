@@ -59,6 +59,12 @@ const createNewRestaurantOwner = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    const checkIfResOwnerExist = await ResOwner.find({ email });
+
+    if (checkIfResOwnerExist) {
+      return res.status(400).json({ error: "Restaurant owner already exist" });
+    }
+
     const restaurantOwner = await ResOwner.create({
       fullName,
       email,

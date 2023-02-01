@@ -61,6 +61,10 @@ const createNewMenu = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "Restaurant not found" });
     }
 
+    if (checkIfRestaurantExist.owner != req.user) {
+      return res.status(401).json({ error: "Access denied" });
+    }
+
     const newMenu = await Menu.create({
       name,
       items,
@@ -108,10 +112,14 @@ const createNewMenuItem = asyncHandler(async (req, res) => {
 
     const checkIfMenuExist = await Menu.findOne({
       _id: menu,
-    });
+    }).populate({ path: "restaurant", model: "Restaurant" });
 
     if (!checkIfMenuExist) {
       return res.status(404).json({ error: "Menu not found" });
+    }
+
+    if (checkIfMenuExist.restaurant.owner != req.user) {
+      return res.status(401).json({ error: "Access denied" });
     }
 
     const newMenuItem = await MenuItem.create({
@@ -145,4 +153,15 @@ const createNewMenuItem = asyncHandler(async (req, res) => {
   }
 });
 
-export { authResOwner, createNewMenu, createNewMenuItem };
+// @desc Test Route
+// @route ANY /api/v1/restaurant/test
+// @access Private/RestaurantOwners
+const testResOwner = asyncHandler(async (req, res) => {
+  try {
+    res.json(req.user);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { authResOwner, createNewMenu, createNewMenuItem, testResOwner };
