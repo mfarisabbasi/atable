@@ -4,7 +4,7 @@ import { verifyToken } from "../functions/tokenFunctions.js";
 import {
   adminMiddlewareError,
   superAdminMiddlewareError,
-} from "../constants/adminConstants.js";
+} from "../constants/errorConstants.js";
 
 const superAdminMiddleware = asyncHandler(async (req, res, next) => {
   try {
