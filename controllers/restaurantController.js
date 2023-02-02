@@ -57,16 +57,14 @@ const getTodaysSpecial = asyncHandler(async (req, res) => {
 // @access Public
 const getRecommended = asyncHandler(async (req, res) => {
   try {
-    const count = await Restaurant.countDocuments();
-    const limit = Math.min(Math.max(count, 3), 5);
-    const random = Math.floor(Math.random() * count);
-    const restaurants = await Restaurant.find()
-      .skip(random)
-      .limit(limit)
-      .populate({ path: "menu", model: "Menu" });
+    const restaurants = await Restaurant.aggregate([{ $sample: { size: 10 } }]);
 
-    if (restaurants) {
-      return res.status(200).json({ success: true, restaurants });
+    const populatedRestaurants = await Restaurant.populate(restaurants, {
+      path: "cuisine",
+    });
+
+    if (populatedRestaurants) {
+      return res.status(200).json({ success: true, populatedRestaurants });
     } else {
       return res.status(400).json({
         error: "Something went wrong while getting recommended restaurants",
