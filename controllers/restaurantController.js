@@ -26,4 +26,28 @@ const getAllRestaurants = asyncHandler(async (req, res) => {
   }
 });
 
-export { getAllRestaurants };
+// @desc Get Today's special - returns the restaurants with premium and advanced subscription
+// @route GET /api/v1/restaurants/special
+// @access Public
+const getTodaysSpecial = asyncHandler(async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find({
+      subscription: { $in: ["Premium", "Advanced"] },
+    }).populate({
+      path: "menu",
+      model: "Menu",
+    });
+
+    if (restaurants) {
+      return res.status(200).json({ success: true, restaurants });
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while getting today's special" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { getAllRestaurants, getTodaysSpecial };
