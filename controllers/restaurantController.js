@@ -9,10 +9,12 @@ import Restaurant from "../models/restaurant/restaurantModel.js";
 // @access Public
 const getAllRestaurants = asyncHandler(async (req, res) => {
   try {
-    const restaurants = await Restaurant.find({}).populate({
-      path: "menu",
-      model: "Menu",
-    });
+    const restaurants = await Restaurant.find({})
+      .populate({
+        path: "menu",
+        model: "Menu",
+      })
+      .populate({ path: "cuisine", model: "Cuisine" });
 
     if (restaurants) {
       return res.status(200).json({ success: true, restaurants });
