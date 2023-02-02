@@ -6,6 +6,9 @@ import Admin from "../models/adminModel.js";
 import Users from "../models/userModel.js";
 import Restaurant from "../models/restaurant/restaurantModel.js";
 import ResOwner from "../models/restaurant/resOwnerModel.js";
+import Reservation from "../models/restaurant/reservationModel.js";
+import Menu from "../models/restaurant/menuModel.js";
+import MenuItem from "../models/restaurant/menuItemModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
@@ -221,6 +224,39 @@ const createNewRestaurant = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc Create new admin
+// @route DELETE /api/v1/management/wipe-data
+// @access Private/SuperAdmin
+const wipeData = asyncHandler(async (req, res) => {
+  try {
+    const deleteResOwners = await ResOwner.deleteMany({});
+    const deleteRestaurants = await Restaurant.deleteMany({});
+    const deleteReservations = await Reservation.deleteMany({});
+    const deleteMenus = await Menu.deleteMany({});
+    const deleteMenuItems = await MenuItem.deleteMany({});
+    const deleteAllUsers = await Users.deleteMany({});
+
+    if (
+      deleteAllUsers &&
+      deleteMenuItems &&
+      deleteMenus &&
+      deleteReservations &&
+      deleteRestaurants &&
+      deleteResOwners
+    ) {
+      return res
+        .status(200)
+        .json({ success: true, message: "Data has been wiped" });
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while wiping the data" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 export {
   createNewAdmin,
   authAdmin,
@@ -228,4 +264,5 @@ export {
   createNewRestaurant,
   createNewRestaurantOwner,
   assignOwnerToRestaurant,
+  wipeData,
 };
