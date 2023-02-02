@@ -50,4 +50,29 @@ const getTodaysSpecial = asyncHandler(async (req, res) => {
   }
 });
 
-export { getAllRestaurants, getTodaysSpecial };
+// @desc Get Recommended For Your - returns 5 random restaurants
+// @route GET /api/v1/restaurants/recommended
+// @access Public
+const getRecommended = asyncHandler(async (req, res) => {
+  try {
+    const count = await Restaurant.countDocuments();
+    const limit = Math.min(Math.max(count, 3), 5);
+    const random = Math.floor(Math.random() * count);
+    const restaurants = await Restaurant.find()
+      .skip(random)
+      .limit(limit)
+      .populate({ path: "menu", model: "Menu" });
+
+    if (restaurants) {
+      return res.status(200).json({ success: true, restaurants });
+    } else {
+      return res.status(400).json({
+        error: "Something went wrong while getting recommended restaurants",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { getAllRestaurants, getTodaysSpecial, getRecommended };
