@@ -12,7 +12,6 @@ import {
   createNewAdmin,
   createNewRestaurant,
   createNewRestaurantOwner,
-  deleteAllUsers,
   wipeData,
 } from "../controllers/adminController.js";
 
@@ -20,7 +19,6 @@ const router = express.Router();
 
 router.post("/new", superAdminMiddleware, createNewAdmin);
 router.post("/auth", authAdmin);
-router.delete("/users/delete/all", superAdminMiddleware, deleteAllUsers);
 router.delete("/wipe-data", superAdminMiddleware, wipeData);
 
 // Admin Restaurants Manager
