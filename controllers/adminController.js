@@ -9,9 +9,12 @@ import ResOwner from "../models/restaurant/resOwnerModel.js";
 import Reservation from "../models/restaurant/reservationModel.js";
 import Menu from "../models/restaurant/menuModel.js";
 import MenuItem from "../models/restaurant/menuItemModel.js";
+import Cuisine from "../models/restaurant/cuisineModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
+
+// Auth Controllers Start
 
 // @desc Create new admin
 // @route POST /api/v1/management/new
@@ -44,6 +47,85 @@ const createNewAdmin = asyncHandler(async (req, res) => {
     } else {
       return res.status(400).json({
         error: "Something went wrong while creating new Admin",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+// @desc Authenticate admin
+// @route POST /api/v1/management/auth
+// @access Private
+const authAdmin = asyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const admin = await Admin.findOne({ email });
+
+    if (admin && (await admin.matchPassword(password))) {
+      return res.status(200).json({
+        success: true,
+        access_token: generateToken(admin._id),
+        admin_details: {
+          id: admin._id,
+          fullName: admin.fullName,
+          email: admin.email,
+          super_admin: admin.super_admin,
+        },
+      });
+    } else {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+// Auth Controllers End
+
+// Restaurant Controllers Start
+
+// @desc Create new restaurant
+// @route POST /api/v1/management/restaurant/new
+// @access Private/Admin
+const createNewRestaurant = asyncHandler(async (req, res) => {
+  try {
+    const { name, cuisine, address, phoneNumber, openingHours, images } =
+      req.body;
+
+    if (
+      !name ||
+      !cuisine ||
+      !address ||
+      !phoneNumber ||
+      !openingHours ||
+      !images
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const newRestaurant = await Restaurant.create({
+      name,
+      cuisine,
+      address,
+      phoneNumber,
+      openingHours,
+      images,
+    });
+    if (newRestaurant) {
+      return res.status(201).json({
+        success: true,
+        message: "New Restaurant created successfully.",
+        restaurant_details: newRestaurant,
+      });
+    } else {
+      return res.status(201).json({
+        error: "Something went wrong while creating new restaurant",
       });
     }
   } catch (error) {
@@ -128,80 +210,9 @@ const assignOwnerToRestaurant = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc Authenticate admin
-// @route POST /api/v1/management/auth
-// @access Private
-const authAdmin = asyncHandler(async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// Restaurant Controllers End
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const admin = await Admin.findOne({ email });
-
-    if (admin && (await admin.matchPassword(password))) {
-      return res.status(200).json({
-        success: true,
-        access_token: generateToken(admin._id),
-        admin_details: {
-          id: admin._id,
-          fullName: admin.fullName,
-          email: admin.email,
-          super_admin: admin.super_admin,
-        },
-      });
-    } else {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
-
-// @desc Create new admin
-// @route POST /api/v1/management/restaurant/new
-// @access Private/Admin
-const createNewRestaurant = asyncHandler(async (req, res) => {
-  try {
-    const { name, cuisine, address, phoneNumber, openingHours, images } =
-      req.body;
-
-    if (
-      !name ||
-      !cuisine ||
-      !address ||
-      !phoneNumber ||
-      !openingHours ||
-      !images
-    ) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const newRestaurant = await Restaurant.create({
-      name,
-      cuisine,
-      address,
-      phoneNumber,
-      openingHours,
-      images,
-    });
-    if (newRestaurant) {
-      return res.status(201).json({
-        success: true,
-        message: "New Restaurant created successfully.",
-        restaurant_details: newRestaurant,
-      });
-    } else {
-      return res.status(201).json({
-        error: "Something went wrong while creating new restaurant",
-      });
-    }
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
+// Dangerous Controllers Start
 
 // @desc Create new admin
 // @route DELETE /api/v1/management/wipe-data
@@ -236,11 +247,55 @@ const wipeData = asyncHandler(async (req, res) => {
   }
 });
 
+// Dangerous Controllers End
+
+// Cuisine Controllers Start
+
+// @desc Create new admin
+// @route POST /api/v1/management/new
+// @access Private/Admin
+const addNewCuisine = asyncHandler(async (req, res) => {
+  try {
+    const { name, image } = req.body;
+
+    if (!name || !image) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const checkIfCuisineExist = await Cuisine.findOne({ name });
+
+    if (checkIfCuisineExist) {
+      return res.status(400).json({ error: "Cuisine already exist" });
+    }
+
+    const newCuisine = await Cuisine.create({
+      name,
+      image,
+    });
+
+    if (newCuisine) {
+      return res.status(201).json({
+        success: true,
+        message: "New Cuisine added successfully",
+      });
+    } else {
+      return res.status(400).json({
+        error: "Something went wrong while adding new Cuisine",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+// Cuisine Controllers End
+
 export {
   createNewAdmin,
   authAdmin,
   createNewRestaurant,
   createNewRestaurantOwner,
   assignOwnerToRestaurant,
+  addNewCuisine,
   wipeData,
 };

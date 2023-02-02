@@ -7,6 +7,7 @@ import {
 } from "../middlewares/managementMiddlewares.js";
 // Controller Imports
 import {
+  addNewCuisine,
   assignOwnerToRestaurant,
   authAdmin,
   createNewAdmin,
@@ -20,6 +21,9 @@ const router = express.Router();
 router.post("/new", superAdminMiddleware, createNewAdmin);
 router.post("/auth", authAdmin);
 router.delete("/wipe-data", superAdminMiddleware, wipeData);
+
+// Cuisine Routes
+router.post("/cuisine/new", adminMiddleware, addNewCuisine);
 
 // Admin Restaurants Manager
 router.post("/restaurant/new", adminMiddleware, createNewRestaurant);
