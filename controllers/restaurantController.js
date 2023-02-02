@@ -36,6 +36,7 @@ const getTodaysSpecial = asyncHandler(async (req, res) => {
     const restaurants = await Restaurant.find({
       subscription: { $in: ["Premium", "Advanced"] },
     })
+      .select("-owner")
       .populate({
         path: "menu",
         model: "Menu",
