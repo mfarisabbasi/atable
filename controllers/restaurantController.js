@@ -63,7 +63,7 @@ const getRecommended = asyncHandler(async (req, res) => {
     const restaurants = await Restaurant.aggregate([{ $sample: { size: 10 } }]);
 
     const populatedRestaurants = await Restaurant.populate(restaurants, {
-      path: "cuisine",
+      path: "cuisine menu",
     });
 
     if (populatedRestaurants) {
