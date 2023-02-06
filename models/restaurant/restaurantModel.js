@@ -27,6 +27,18 @@ const restaurantSchema = mongoose.Schema(
       of: String,
     },
     images: [{ type: String }],
+    reviews: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        rating: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
     rating: {
       type: Number,
       default: 0,

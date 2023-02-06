@@ -216,7 +216,7 @@ const assignOwnerToRestaurant = asyncHandler(async (req, res) => {
 
 // Dangerous Controllers Start
 
-// @desc Create new admin
+// @desc Wipe the database
 // @route DELETE /api/v1/management/wipe-data
 // @access Private/SuperAdmin
 const wipeData = asyncHandler(async (req, res) => {

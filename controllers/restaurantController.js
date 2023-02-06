@@ -55,7 +55,7 @@ const getTodaysSpecial = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc Get Recommended For Your - returns 5 random restaurants
+// @desc Get Recommended For You - returns 5 random restaurants
 // @route GET /api/v1/restaurants/recommended
 // @access Public
 const getRecommended = asyncHandler(async (req, res) => {
@@ -78,4 +78,59 @@ const getRecommended = asyncHandler(async (req, res) => {
   }
 });
 
-export { getAllRestaurants, getTodaysSpecial, getRecommended };
+// @desc Give a review to a restaurant
+// @route POST /api/v1/restaurants/review/new
+// @access Public
+const newReview = asyncHandler(async (req, res) => {
+  try {
+    const { restaurantId, rating } = req.body;
+
+    if (!restaurantId || !rating) {
+      return res
+        .status(400)
+        .json({ error: "restaurantId & rating is required" });
+    }
+
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({ error: "Restaurant not found" });
+    }
+
+    const alreadyReviewed = restaurant.reviews.find(
+      (r) => r.user.toString() === req.user.toString()
+    );
+
+    if (alreadyReviewed) {
+      return res.status(400).json({ error: "Restaurant already reviewed" });
+    }
+
+    const newReview = {
+      user: req.user,
+      rating: Number(rating),
+    };
+
+    restaurant.reviews.push(newReview);
+    restaurant.totalRatings = restaurant.reviews.length;
+    restaurant.rating =
+      restaurant.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      restaurant.reviews.length;
+
+    const ratingCompleted = await restaurant.save();
+
+    if (ratingCompleted) {
+      return res.status(201).json({
+        success: true,
+        message: "Thank you for reviewing the restaurant",
+      });
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while creating new review" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { getAllRestaurants, getTodaysSpecial, getRecommended, newReview };
