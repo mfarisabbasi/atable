@@ -4,6 +4,8 @@ import asyncHandler from "express-async-handler";
 // Models Import
 import Restaurant from "../models/restaurant/restaurantModel.js";
 
+// Home Screen Controllers Start
+
 // @desc Get all restaurants
 // @route GET /api/v1/restaurants/all
 // @access Public
@@ -78,6 +80,33 @@ const getRecommended = asyncHandler(async (req, res) => {
   }
 });
 
+// Home Screen Controllers End
+
+// Basic Restaurant Controllers Start
+
+// @desc Fetch Single Restaurant By ID
+// @route GET /api/v1/restaurants/:id
+// @access Public
+const getSingleRestaurantById = asyncHandler(async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id).populate(
+      "cuisine menu"
+    );
+
+    if (restaurant) {
+      return res.status(200).json({ success: true, restaurant });
+    } else {
+      return res.status(400).json({ error: "Restaurant not found" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+// Basic Restaurant Controllers End
+
+// Reviews Controllers Start
+
 // @desc Give a review to a restaurant
 // @route POST /api/v1/restaurants/review/new
 // @access Public
@@ -133,4 +162,12 @@ const newReview = asyncHandler(async (req, res) => {
   }
 });
 
-export { getAllRestaurants, getTodaysSpecial, getRecommended, newReview };
+// Reviews Controllers End
+
+export {
+  getAllRestaurants,
+  getTodaysSpecial,
+  getRecommended,
+  getSingleRestaurantById,
+  newReview,
+};
