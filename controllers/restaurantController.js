@@ -1,6 +1,9 @@
 // Packages Import
 import asyncHandler from "express-async-handler";
 
+// Functions Import
+import { shuffleArray } from "../functions/basicFunctions.js";
+
 // Models Import
 import Restaurant from "../models/restaurant/restaurantModel.js";
 
@@ -45,8 +48,12 @@ const getTodaysSpecial = asyncHandler(async (req, res) => {
       })
       .populate({ path: "cuisine", model: "Cuisine" });
 
+    const shuffleRestaurants = shuffleArray(restaurants);
+
     if (restaurants) {
-      return res.status(200).json({ success: true, restaurants });
+      return res
+        .status(200)
+        .json({ success: true, restaurants: shuffleRestaurants });
     } else {
       return res
         .status(400)
