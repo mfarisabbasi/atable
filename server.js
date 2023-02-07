@@ -25,6 +25,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import restaurantRoutes from "./routes/restaurantRoutes.js";
 import restaurantOwnerRoutes from "./routes/restaurantOwnerRoutes.js";
 import cuisineRoutes from "./routes/cuisineRoutes.js";
+import favoriteRoutes from "./routes/favoriteRoutes.js";
 
 // Route Imports End
 
@@ -61,6 +62,7 @@ app.use("/api/v1/management", adminRoutes);
 app.use("/api/v1/restaurants", restaurantRoutes);
 app.use("/api/v1/restaurant", restaurantOwnerRoutes);
 app.use("/api/v1/cuisine", cuisineRoutes);
+app.use("/api/v1/favorites", favoriteRoutes);
 
 // API End
 
