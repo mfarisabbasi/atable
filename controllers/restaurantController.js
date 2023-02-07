@@ -9,30 +9,6 @@ import Restaurant from "../models/restaurant/restaurantModel.js";
 
 // Home Screen Controllers Start
 
-// @desc Get all restaurants
-// @route GET /api/v1/restaurants/all
-// @access Public
-const getAllRestaurants = asyncHandler(async (req, res) => {
-  try {
-    const restaurants = await Restaurant.find({})
-      .populate({
-        path: "menu",
-        model: "Menu",
-      })
-      .populate({ path: "cuisine", model: "Cuisine" });
-
-    if (restaurants) {
-      return res.status(200).json({ success: true, restaurants });
-    } else {
-      return res
-        .status(400)
-        .json({ error: "Something went wrong while getting all restaurants" });
-    }
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
-
 // @desc Get Today's special - returns the restaurants with premium and advanced subscription
 // @route GET /api/v1/restaurants/special
 // @access Public
@@ -87,9 +63,54 @@ const getRecommended = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc Browse By Cuisine
+// @route GET /api/v1/restaurants/cuisine/:id
+// @access Public
+const browseByCuisine = asyncHandler(async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find({ cuisine: req.params.id });
+
+    const shuffleRestaurants = shuffleArray(restaurants);
+
+    if (restaurants) {
+      return res
+        .status(200)
+        .json({ success: true, restaurants: shuffleRestaurants });
+    } else {
+      return res.status(400).json({ error: "Restaurants not found" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 // Home Screen Controllers End
 
 // Basic Restaurant Controllers Start
+
+// @desc Get all restaurants
+// @route GET /api/v1/restaurants/all
+// @access Public
+const getAllRestaurants = asyncHandler(async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find({})
+      .populate({
+        path: "menu",
+        model: "Menu",
+      })
+      .populate({ path: "cuisine", model: "Cuisine" });
+
+    if (restaurants) {
+      return res.status(200).json({ success: true, restaurants });
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Something went wrong while getting all restaurants" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
 
 // @desc Fetch Single Restaurant By ID
 // @route GET /api/v1/restaurants/:id
@@ -176,5 +197,6 @@ export {
   getTodaysSpecial,
   getRecommended,
   getSingleRestaurantById,
+  browseByCuisine,
   newReview,
 };

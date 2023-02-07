@@ -4,6 +4,7 @@ import express from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 // Controller Imports
 import {
+  browseByCuisine,
   getAllRestaurants,
   getRecommended,
   getSingleRestaurantById,
@@ -17,6 +18,7 @@ router.get("/all", getAllRestaurants);
 router.get("/special", getTodaysSpecial);
 router.get("/recommended", getRecommended);
 router.get("/:id", getSingleRestaurantById);
+router.get("/cuisine/:id", browseByCuisine);
 router.post("/review/new", authMiddleware, newReview);
 
 export default router;
