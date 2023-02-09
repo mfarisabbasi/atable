@@ -45,4 +45,26 @@ const addNewFavorite = asyncHandler(async (req, res) => {
   }
 });
 
-export { addNewFavorite };
+// @desc Add restaurant to favorites
+// @route GET /api/v1/favorites/
+// @access Private
+const getUserFavorites = asyncHandler(async (req, res) => {
+  try {
+    const favorites = await Favorite.findOne({ user: req.user }).populate({
+      path: "favorites",
+      select: "images name",
+    });
+
+    if (favorites) {
+      return res.status(200).json({ success: true, favorites });
+    } else {
+      return res
+        .status(200)
+        .json({ success: true, message: "You don't have any favorites" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { addNewFavorite, getUserFavorites };
