@@ -67,4 +67,28 @@ const getUserFavorites = asyncHandler(async (req, res) => {
   }
 });
 
-export { addNewFavorite, getUserFavorites };
+// @desc Remove favorite
+// @route DELETE /api/v1/favorites/
+// @access Private
+const deleteFavorite = asyncHandler(async (req, res) => {
+  try {
+    const { restaurantId } = req.body;
+    const favorite = await Favorite.findOne({ user: req.user });
+
+    const index = favorite.favorites.indexOf(restaurantId);
+    if (index === -1) {
+      return res
+        .status(404)
+        .json({ error: "Restaurant not found in favorites" });
+    }
+    favorite.favorites.splice(index, 1);
+    await favorite.save();
+    res
+      .status(200)
+      .json({ success: true, message: "Restaurant removed from favorites" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+export { addNewFavorite, getUserFavorites, deleteFavorite };
