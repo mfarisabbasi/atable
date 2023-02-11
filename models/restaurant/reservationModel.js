@@ -52,29 +52,6 @@ const reservationSchema = mongoose.Schema(
       ref: "Restaurant",
       required: true,
     },
-    // validate: {
-    //   validator: function (reservation) {
-    //     return Restaurant.findById(reservation.restaurant).then(
-    //       (restaurant) => {
-    //         if (!restaurant) {
-    //           return Promise.reject(new Error("Invalid restaurant id."));
-    //         }
-    //         let restaurantOpeningHours = restaurant.openingHours;
-    //         let day = reservation.date.getDay();
-    //         let isOpen =
-    //           restaurantOpeningHours[day].open <= reservation.time &&
-    //           restaurantOpeningHours[day].close >= reservation.time;
-    //         if (!isOpen) {
-    //           return Promise.reject(
-    //             new Error("Restaurant is closed at this time.")
-    //           );
-    //         }
-    //         return true;
-    //       }
-    //     );
-    //   },
-    //   message: "Restaurant is closed at this time.",
-    // },
   },
   {
     timestamps: true,
