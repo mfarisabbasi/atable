@@ -30,13 +30,6 @@ const reservationSchema = mongoose.Schema(
     time: {
       type: String,
       required: true,
-      validate: {
-        validator: function (value) {
-          return openingHours.includes(value);
-        },
-        message:
-          "{VALUE} is not a valid time. Please choose a time from the opening hours.",
-      },
     },
     specialRequests: {
       type: String,
