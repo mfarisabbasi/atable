@@ -186,5 +186,32 @@ const getTodayBookings = asyncHandler(async (req, res) => {
     return res.status(400).json(error)
   }
 })
+const checkMonthlyReservation = asyncHandler(async (req, res) => {
+  try {
+    let monthBookings = []
 
-export { getTodayBookings, authResOwner, createNewMenu, createNewMenuItem, testResOwner };
+    const date = new Date();
+    const getMonth = date.getMonth() + 1;
+    const getYear = date.getFullYear();
+
+    monthBookings = await Reservation.find({
+      '$details.date': {
+
+        $get: new Date(`${getYear}-${getMonth}-01`),
+        lte: new Date(`${getYear}-${getMonth}-01`)
+      }
+    })
+
+    if (!monthBookings || monthBookings.length === 0) {
+      return res.status(200).json({ message: "No Reservations for this months..." })
+    } else {
+      const monthFilter = monthBookings.filter(x => x.restaurant === req.user.restaurants)
+      return res.status(200).json({ BookingsFound: monthFilter })
+    }
+  }
+  catch (error) {
+    return res.status(400).json(error)
+  }
+
+})
+export { checkMonthlyReservation,getTodayBookings, authResOwner, createNewMenu, createNewMenuItem, testResOwner };
