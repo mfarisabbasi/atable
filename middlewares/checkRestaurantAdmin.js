@@ -1,6 +1,5 @@
-const expressAsyncHandler = require('express-async-handler');
-const jwt = require('jsonwebtoken');
-const ResOwner = require('../models/restaurant/resOwnerModel');
+import jwt from "jsonwebtoken";
+import ResOwner from "../models/restaurant/resOwnerModel.js";
 
 
 const checkResOwner = async (req, res, next) => {
