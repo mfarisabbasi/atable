@@ -217,7 +217,7 @@ const checkMonthlyReservation = asyncHandler(async (req, res) => {
 
 // @route ANY /api/v1/restaurant/owner/show/allreservations
 // @access Private/RestaurantOwners
-const disaplyReservationsRequest =  asyncHandler(async (req, res) => {
+const disaplyReservationsRequest = asyncHandler(async (req, res) => {
 
   let allRes = [];
   try {
@@ -278,4 +278,115 @@ const approveReservationById = asyncHandler(async (req, res) => {
   }
 })
 
-export {approveReservationById,disaplyReservationsRequest, checkMonthlyReservation,getTodayBookings, authResOwner, createNewMenu, createNewMenuItem, testResOwner };
+//@route ANY /api/v1/restaurant/owner/reservation/approve
+const cancelReservationById = asyncHandler(async (req, res) => {
+  try {
+    // Extract reservation ID from request body
+    const { id } = req.body;
+    // Extract restaurant ID from authenticated user's object
+    const res_id = req.user.restaurants;
+    // Find the reservation in the database and update its status to "Rejected"
+    const reservation = Reservation.findOneAndUpdate(
+      {
+        $and:
+          [
+            { _id: id }, { restaurant: res_id }
+          ]
+      },
+      { reservation_status: "Rejected" },
+      { new: true }).then(() => {
+        // Return JSON response with updated reservation object and success message
+        return res.status(200).json({ reservation, message: "reservation cancelled" })
+      }).catch((error) => {
+        // Return JSON response with error message
+        return res.status(400).json({ error })
+      })
+
+  }
+  catch (error) {
+    // Return JSON response with error message
+    return res.status(400).json({ error })
+  }
+})
+//@route ANY /api/v1/restaurant/owner/openslots/add
+const addRestaurantOpeningSlots = asyncHandler(async (req, res) => {
+  try {
+    const owner_id = req.user._id;
+    // Find the restaurant object owned by the authenticated user
+    const findRestaurant = await Restaurant.find({ owner: owner_id })
+
+    if (findRestaurant) {
+      // Check if opening hours already exist for the day specified in the request
+      const findhours = findRestaurant.openingHours.find(x => x.day === resHours.day);
+      if (findhours) {
+
+        findhours.time = resHours.time;
+      }
+      else {
+        // Add the new opening hours for the day to the restaurant object's openingHours array
+        findRestaurant.openingHours.push(resHours);
+      }
+
+      // Save the updated restaurant object in the database and return a success message in a JSON response
+      findRestaurant.save().then(() => {
+        return res.status(201).json({ message: "opening slot updated Successfully.." })
+      }).
+        catch(err => { return res.status(400).json({ message: err }) })
+    }
+    else {
+
+      return res.status(403).json({ message: "unAuthorized..." })
+    }
+  }
+  catch (error) {
+
+    return res.status(400).json({ message: "something bad occured..." })
+  }
+})
+
+//@route ANY /api/v1/restaurant/owner/closeslots/add
+const addRestaurantClosingSlots = asyncHandler(async (req, res) => {
+  try {
+    const { resHours } = req.body.resHours;
+    const owner_id = req.user._id;
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id })
+
+    if (findRestaurant) {
+      const findhours = findRestaurant.closingHours.find(x => x.day === resHours.day);
+      if (findhours) {
+        findhours.time = resHours.time;
+      }
+      else {
+        findRestaurant.closingHours.push(resHours);
+      }
+
+      findRestaurant.save().then(() => {
+        return res.status(201).json({ message: "closing slot updated Successfully.." })
+      }).
+        catch(err => { return res.status(400).json({ message: err }) })
+
+
+    }
+    else {
+      return res.status(403).json({ message: "unAuthorized..." })
+    }
+  }
+  catch (error) {
+    return res.status(400).json({ message: "something bad occured..." })
+  }
+})
+
+
+export {
+  cancelReservationById,
+  addRestaurantOpeningSlots,
+  addRestaurantClosingSlots,
+  approveReservationById,
+  disaplyReservationsRequest,
+  checkMonthlyReservation,
+  getTodayBookings,
+  authResOwner,
+  createNewMenu,
+  createNewMenuItem,
+  testResOwner
+};
