@@ -214,4 +214,68 @@ const checkMonthlyReservation = asyncHandler(async (req, res) => {
   }
 
 })
-export { checkMonthlyReservation,getTodayBookings, authResOwner, createNewMenu, createNewMenuItem, testResOwner };
+
+// @route ANY /api/v1/restaurant/owner/show/allreservations
+// @access Private/RestaurantOwners
+const disaplyReservationsRequest =  asyncHandler(async (req, res) => {
+
+  let allRes = [];
+  try {
+    const id = req.user.restaurants;
+    allRes = await Reservation.find({
+      $and: [
+        { reservation_status: true },
+        { restaurant: id }
+      ]
+    })
+    if (allRes.length !== 0) {
+      return res.status(200).json({ allRes })
+    } else {
+      return res.status(200).json({ message: "There are no reservations to be approved.." })
+    }
+  }
+  catch (error) {
+    return res.status(400).json({ error })
+  }
+})
+//@route ANY /api/v1/restaurantowner/reservation/approve
+const approveReservationById = asyncHandler(async (req, res) => {
+
+  try {
+    const { id } = req.body;
+    const res_id = req.user.restaurants;
+    const reservation = await Reservation.findOneAndUpdate(
+      {
+        $and:
+          [
+            { _id: id }, { restaurant: res_id }
+          ]
+      },
+      { reservation_status: "Approved" },
+      { new: true }
+    );
+
+    if (!reservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+    const restaurant = await Restaurant.findOneAndUpdate(
+      { _id: res_id },
+      { $push: { reservations: reservation._id } },
+      { new: true }
+    );
+
+    if (restaurant) {
+      return res.status(200).json({ reservation, message: "reservation approved successfully" })
+    }
+    else {
+      return res.status(400).json({ message: "something bad occurred." })
+    }
+  }
+
+  catch (error) {
+    return res.status(400).json({ error })
+  }
+})
+
+export {approveReservationById,disaplyReservationsRequest, checkMonthlyReservation,getTodayBookings, authResOwner, createNewMenu, createNewMenuItem, testResOwner };
