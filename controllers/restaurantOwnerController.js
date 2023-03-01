@@ -375,9 +375,105 @@ const addRestaurantClosingSlots = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "something bad occured..." })
   }
 })
+//@route ANY /api/v1/restaurant/owner/reservation/toggle/auto
+const toggleAutoApprove =  asyncHandler(async (req, res) => {
+  try {
+    //first find restaurant.
+    const findRes = await Restaurant.findOneAndUpdate({
+      $and: [
+        { _id: req.user.restaurants }, { owner: req.user._id }]
+    },
+      { auto_approve: true },
+      { new: true })
+    if (findRes) {
+      return res.status(201).json({ findRes, message: 'Auto Approve Turned On!' })
+    }
+    else {
+      return res.status(403).json({ message: 'Something bad occured..' })
+    }
+  }
+  catch (err) {
+    return res.status(400).json({ message: err })
+  }
+})
 
+//@route ANY /api/v1/restaurant/owner/reservation/auto
+const autoApproveReservations =  asyncHandler(async (req, res) => {
+  try {
+    res_id = req.user.restaurants;
+    const findRes = await Restaurant.findById({ _id: res_id })
+
+    if (findRes) {
+      const findReservations = await Reservation.updateMany({
+        $and: [
+          { restaurant: findRes._id },
+          { reservation_status: false }]
+      },
+        { reservation_status: true })
+
+      if (findReservations) {
+        return res.status(201).json({ message: "All reservations approved automatically.." })
+      } else {
+        return res.status(200).json({ message: "No reservations found" })
+      }
+    }
+  }
+  catch (err) {
+    return res.status(400).json({ err })
+  }
+})
+//@route ANY /api/v1/restaurant/owner/reservation/add/tables
+const addTables =  asyncHandler(async (req, res) => {
+  try {
+    const { capacity, quantity } = req.body;
+    const res_id = req.user.restaurants;
+    const findRes = await Restaurant.findOne({ _id: res_id, owner: req.user._id })
+
+    if (findRes) {
+      const findTable = findRes.tableDetails.find(element => element.capacity === capacity)
+      if (findTable) {
+        findTable.quantity += quantity;
+      }
+      else {
+        findRes.tableDetails.push({ capacity, quantity })
+      }
+      findRes.save().then(() => {
+        return res.status(201).json({ message: "table added Successfully" })
+      }).catch((err) => {
+        return res.status(400).json({ message: err })
+      })
+    }
+    else {
+      return res.status(400).json({ message: 'unAuthorized.' })
+    }
+  }
+  catch (err) {
+    return res.status(400).json({ err })
+  }
+})
+//@route ANY /api/v1/restaurant/owner/show/profile
+const restaurantProfile =  asyncHandler(async (req, res) => {
+  try {
+    const res_id = req.user.restaurants;
+    const findRes = await Restaurant.findOne({ _id: res_id, owner: req.user._id })
+
+    if (findRes) {
+      return res.status(200).json({ findRes })
+    } else {
+      return res.status(400).json({ error: "UnAuthorized.." })
+    }
+
+
+  } catch (err) {
+    return res.status(400).json({ error: err })
+  }
+})
 
 export {
+  toggleAutoApprove,
+  restaurantProfile,
+  addTables,
+  autoApproveReservations,
   cancelReservationById,
   addRestaurantOpeningSlots,
   addRestaurantClosingSlots,
