@@ -27,10 +27,13 @@ const reservationSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
-    time: {
-      type: String,
-      required: true,
-    },
+    details: [
+      {
+        time: {
+          type: String,
+        },
+        date: Date,
+      }],
     specialRequests: {
       type: String,
     },
