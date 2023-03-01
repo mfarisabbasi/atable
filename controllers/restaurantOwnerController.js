@@ -376,7 +376,7 @@ const addRestaurantClosingSlots = asyncHandler(async (req, res) => {
   }
 })
 //@route ANY /api/v1/restaurant/owner/reservation/toggle/auto
-const toggleAutoApprove =  asyncHandler(async (req, res) => {
+const toggleAutoApprove = asyncHandler(async (req, res) => {
   try {
     //first find restaurant.
     const findRes = await Restaurant.findOneAndUpdate({
@@ -398,7 +398,7 @@ const toggleAutoApprove =  asyncHandler(async (req, res) => {
 })
 
 //@route ANY /api/v1/restaurant/owner/reservation/auto
-const autoApproveReservations =  asyncHandler(async (req, res) => {
+const autoApproveReservations = asyncHandler(async (req, res) => {
   try {
     res_id = req.user.restaurants;
     const findRes = await Restaurant.findById({ _id: res_id })
@@ -423,7 +423,7 @@ const autoApproveReservations =  asyncHandler(async (req, res) => {
   }
 })
 //@route ANY /api/v1/restaurant/owner/reservation/add/tables
-const addTables =  asyncHandler(async (req, res) => {
+const addTables = asyncHandler(async (req, res) => {
   try {
     const { capacity, quantity } = req.body;
     const res_id = req.user.restaurants;
@@ -452,7 +452,7 @@ const addTables =  asyncHandler(async (req, res) => {
   }
 })
 //@route ANY /api/v1/restaurant/owner/show/profile
-const restaurantProfile =  asyncHandler(async (req, res) => {
+const restaurantProfile = asyncHandler(async (req, res) => {
   try {
     const res_id = req.user.restaurants;
     const findRes = await Restaurant.findOne({ _id: res_id, owner: req.user._id })
