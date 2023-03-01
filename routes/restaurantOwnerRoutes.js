@@ -3,7 +3,10 @@ import express from "express";
 // Middleware Imports
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { checkResOwner } from "../middlewares/checkRestaurantAdmin.js";
-import { getTodayBookings,checkMonthlyReservation } from "../controllers/restaurantOwnerController.js";
+import { getTodayBookings,checkMonthlyReservation,
+  disaplyReservationsRequest,
+  approveReservationById
+ } from "../controllers/restaurantOwnerController.js";
 // Controller Imports
 import {
   authResOwner,
