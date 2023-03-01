@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
 const restaurantSchema = mongoose.Schema(
   {
@@ -22,10 +22,18 @@ const restaurantSchema = mongoose.Schema(
         "Please enter a valid Morocco phone number",
       ],
     },
-    openingHours: {
-      type: Map,
-      of: String,
-    },
+    openingHours: [
+      {
+        day: { type: String },
+        time: { type: String }
+      }
+    ],
+    closingHours: [
+      {
+        day: { type: String },
+        time: { type: String }
+      }
+    ],
     images: [{ type: String }],
     reviews: [
       {
@@ -74,11 +82,30 @@ const restaurantSchema = mongoose.Schema(
       enum: ["Premium", "Advanced", "Basic"],
       default: "Basic",
     },
+    totalTables: {
+      type: Number
+    },
+    tablesDetails:
+      [
+        {
+          capacity: {
+            type: Number,
+          },
+          quantity: {
+            type: Number
+          }
+        }
+      ],
   },
   {
     timestamps: true,
   }
 );
 
+restaurantSchema.pre('save', function (next) {
+  const totalTables = this.tablesDetails.reduce((acc, table) => acc + table.quantity, 0);
+  this.totalTables = totalTables;
+  next();
+});
 const Restaurant = mongoose.model("Restaurant", restaurantSchema);
-export default Restaurant;
+module.exports = Restaurant;
