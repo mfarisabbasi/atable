@@ -13,6 +13,13 @@ import {
   createNewMenu,
   createNewMenuItem,
   testResOwner,
+  cancelReservationById,
+  addRestaurantClosingSlots,
+  addRestaurantOpeningSlots,
+  toggleAutoApprove,
+  autoApproveReservations,
+  addTables,
+  restaurantProfile
 } from "../controllers/restaurantOwnerController.js";
 
 const router = express.Router();
