@@ -163,5 +163,28 @@ const testResOwner = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
+// @route ANY /api/v1/restaurant/owner/show/todayreservations
+// @access Private/RestaurantOwners
+const getTodayBookings = asyncHandler(async (req, res) => {
+  try {
 
-export { authResOwner, createNewMenu, createNewMenuItem, testResOwner };
+    const Bookings = await Reservation.aggregate([
+      {
+        $match: {
+          '$details.date': { $gte: new Date().setHours(0, 0, 0, 0), $lt: new Date().setHours(23, 59, 59, 999) }
+        }
+      }
+    ])
+    if (Bookings.length === 0) {
+      return res.status(200).json({ message: "No Bookings found today." })
+    } else {
+      const filterBookings = Bookings.filter(x => x.restaurant === req.user.restaurants)
+      return res.status(200).json({ filterBookings });
+    }
+  }
+  catch (error) {
+    return res.status(400).json(error)
+  }
+})
+
+export { getTodayBookings, authResOwner, createNewMenu, createNewMenuItem, testResOwner };
