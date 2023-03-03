@@ -8,12 +8,11 @@ const resOwnerSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    restaurants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Restaurant",
-      },
-    ],
+    restaurants:
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Restaurant",
+    },
     email: {
       type: String,
       required: true,
