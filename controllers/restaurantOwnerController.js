@@ -438,7 +438,7 @@ const autoApproveReservations = asyncHandler(async (req, res) => {
   }
 })
 //@desc route for adding no of tables with capacity
-//@route POST /api/v1/restauran/owner/reservation/add/tables
+//@route POST /api/v1/restaurant/owner/reservation/add/tables
 // @access Private/RestaurantOwner
 const addTables = asyncHandler(async (req, res) => {
   try {
@@ -469,7 +469,7 @@ const addTables = asyncHandler(async (req, res) => {
   }
 })
 //@desc route checking restaurant profile.
-//@route GET /api/v1/restauran/owner/show/profile
+//@route GET /api/v1/restaurant/owner/show/profile
 // @access Private/RestaurantOwner
 const restaurantProfile = asyncHandler(async (req, res) => {
   try {
