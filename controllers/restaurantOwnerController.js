@@ -637,7 +637,6 @@ export {
   toggleAutoApprove,
   restaurantProfile,
   addTables,
-  autoApproveReservations,
   cancelReservationById,
   addRestaurantOpeningSlots,
   addRestaurantClosingSlots,
