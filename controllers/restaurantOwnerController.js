@@ -246,77 +246,105 @@ const disaplyReservationsRequest = asyncHandler(async (req, res) => {
 //@desc Approve Reservation Request By Id.
 // @route POST /api/v1/restaurant/owner/reservation/approve
 // @access Private/RestaurantOwner
-const approveReservationById = asyncHandler(async (req, res) => {
+const approveReservationById = async (req, res) => {
 
   try {
     const { id } = req.body;
-    const res_id = req.user.restaurants;
+    
+    const owner_id = req.user._id;
+    
+    if (!id) {
+      return res.status(400).json({ message: "something bad happened. Please try again." })
+    }
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
+    }
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id })
+
+    if (!findRestaurant) {
+      return res.status(403).json({ message: "UnAuthorized" })
+    }
+
     const reservation = await Reservation.findOneAndUpdate(
       {
         $and:
           [
-            { _id: id }, { restaurant: res_id }
+            { _id: id }, { restaurant: findRestaurant._id }, { reservation_status: "Pending" }
           ]
       },
       { reservation_status: "Approved" },
       { new: true }
     );
+    console.log(reservation);
+    if (reservation) {
+      const restaurant = await Restaurant.findOneAndUpdate(
+        { _id: findRestaurant._id },
+        { $push: { reservations: reservation._id } },
+        { new: true });
 
-    if (!reservation) {
-      return res.status(404).json({ message: "Reservation not found" });
-    }
-
-    const restaurant = await Restaurant.findOneAndUpdate(
-      { _id: res_id },
-      { $push: { reservations: reservation._id } },
-      { new: true }
-    );
-
-    if (restaurant) {
-      return res.status(200).json({ reservation, message: "reservation approved successfully" })
+      if (restaurant) {
+        return res.status(200).json({ reservation, message: "reservation approved successfully" })
+      }
+      else {
+        return res.status(400).json({ message: "something bad occurred." })
+      }
     }
     else {
-      return res.status(400).json({ message: "something bad occurred." })
+      return res.status(400).json({ message: "Something bad occured. Try again" })
     }
   }
 
   catch (error) {
-    return res.status(400).json({ error })
+    return res.status(401).json({ error: error })
   }
-})
+}
+
 
 //@desc Cancel Reservation Request By Id.
 // @route POST /api/v1/restaurant/owner/reservation/cancel
 // @access Private/RestaurantOwner
-const cancelReservationById = asyncHandler(async (req, res) => {
+const cancelReservationById = async (req, res) => {
+
   try {
-    // Extract reservation ID from request body
     const { id } = req.body;
-    // Extract restaurant ID from authenticated user's object
-    const res_id = req.user.restaurants;
-    // Find the reservation in the database and update its status to "Rejected"
-    const reservation = Reservation.findOneAndUpdate(
+
+    const owner_id = req.user._id;
+
+    if (!id) {
+      return res.status(400).json({ message: "something bad happened. Please try again." })
+    }
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
+    }
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id })
+
+    if (!findRestaurant) {
+      return res.status(403).json({ message: "UnAuthorized" })
+    }
+
+    const reservation = await Reservation.findOneAndUpdate(
       {
         $and:
           [
-            { _id: id }, { restaurant: res_id }
+            { _id: id }, { restaurant: findRestaurant._id }, { reservation_status: "Pending" }
           ]
       },
       { reservation_status: "Rejected" },
-      { new: true }).then(() => {
-        // Return JSON response with updated reservation object and success message
-        return res.status(200).json({ reservation, message: "reservation cancelled" })
-      }).catch((error) => {
-        // Return JSON response with error message
-        return res.status(400).json({ error })
-      })
-
+      { new: true }
+    );
+    console.log(reservation);
+    if (reservation) {
+      return res.status(200).json({ reservation, message: "reservation Cancelled" })
+    }
+    else {
+      return res.status(400).json({ message: "Something bad occured. Try again" })
+    }
   }
   catch (error) {
-    // Return JSON response with error message
-    return res.status(400).json({ error })
+    return res.status(401).json({ error: error })
   }
-})
+}
+
 
 //@desc Add Opening Slots For Restaurant for the Specific Day.
 // @route POST /api/v1/restaurant/owner/openslots/add
