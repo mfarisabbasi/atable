@@ -9,7 +9,7 @@ import MenuItem from "../models/restaurant/menuItemModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
-import {uploads,delPicture} from "../utils/cloudinary.js";
+import { uploads, delPicture } from "../utils/cloudinary.js";
 
 // @desc Authenticate restaurant owner
 // @route POST /api/v1/restaurant/owner/auth
@@ -391,17 +391,23 @@ const addRestaurantClosingSlots = asyncHandler(async (req, res) => {
 //@desc A toggle Button for on or of for auto approve.
 //@route POST /api/v1/restaurant/owner/reservation/toggle/auto
 // @access Private/RestaurantOwner
-const toggleAutoApprove = asyncHandler(async (req, res) => {
+const toggleAutoApprove = async (req, res) => {
   try {
-    //first find restaurant.
-    const findRes = await Restaurant.findOneAndUpdate({
-      $and: [
-        { _id: req.user.restaurants }, { owner: req.user._id }]
-    },
-      { auto_approve: true },
-      { new: true })
-    if (findRes) {
-      return res.status(201).json({ findRes, message: 'Auto Approve Turned On!' })
+    const owner_id = req.user._id;
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
+    }
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id })
+    if (!findRestaurant) {
+      return res.status(403).json({ message: "UnAuthorized" })
+    }
+    const ToggleRestaurant = await Restaurant.findOneAndUpdate(
+      { owner: owner_id },
+      { $set: { auto_approve: !findRestaurant.auto_approve } },
+      { new: true }
+    );
+    if (findRestaurant) {
+      return res.status(201).json({ ToggleRestaurant, message: 'Auto Approved Toggled' })
     }
     else {
       return res.status(403).json({ message: 'Something bad occured..' })
@@ -410,34 +416,7 @@ const toggleAutoApprove = asyncHandler(async (req, res) => {
   catch (err) {
     return res.status(400).json({ message: err })
   }
-})
-//@desc Reservations approved automatically after toggle.
-//@route POST /api/v1/restaurant/owner/reservation/auto
-// @access Private/RestaurantOwner
-const autoApproveReservations = asyncHandler(async (req, res) => {
-  try {
-    res_id = req.user.restaurants;
-    const findRes = await Restaurant.findById({ _id: res_id })
-
-    if (findRes) {
-      const findReservations = await Reservation.updateMany({
-        $and: [
-          { restaurant: findRes._id },
-          { reservation_status: false }]
-      },
-        { reservation_status: true })
-
-      if (findReservations) {
-        return res.status(201).json({ message: "All reservations approved automatically.." })
-      } else {
-        return res.status(200).json({ message: "No reservations found" })
-      }
-    }
-  }
-  catch (err) {
-    return res.status(400).json({ err })
-  }
-})
+}
 
 
 //@desc route for adding no of tables with capacity
@@ -530,7 +509,7 @@ const addPictures = asyncHandler(async (req, res) => {
 // @access Private/RestaurantOwner
 const removePicture = asyncHandler(async (req, res) => {
   try {
-    const {publicId} = req.body;
+    const { publicId } = req.body;
     const result = await delPicture(publicId, req.user._id);
     if (result) {
       // Picture deleted successfully, and MongoDB updated
