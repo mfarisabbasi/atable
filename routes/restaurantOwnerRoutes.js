@@ -8,8 +8,12 @@ import {
   disaplyReservationsRequest,
   approveReservationById
 } from "../controllers/restaurantOwnerController.js";
+
+import { upload } from "../utils/multer.js";
 // Controller Imports
 import {
+  addPictures,
+  removePicture,
   authResOwner,
   createNewMenu,
   createNewMenuItem,
@@ -40,5 +44,7 @@ router.post("/owner/reservation/toggle/auto", checkResOwner, toggleAutoApprove);
 router.post("/owner/reservation/auto", checkResOwner, autoApproveReservations);
 router.post("/owner/reservation/add/tables", checkResOwner, addTables)
 router.get("/owner/show/profile", checkResOwner, restaurantProfile)
+router.post('/owner/add/pictures', checkResOwner, upload.array('image', 7), addPictures);
+router.post('/owner/del/picture', checkResOwner, removePicture);
 
 export default router;
