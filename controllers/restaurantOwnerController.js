@@ -9,6 +9,7 @@ import MenuItem from "../models/restaurant/menuItemModel.js";
 
 // Functions Import
 import { generateToken } from "../functions/tokenFunctions.js";
+import {uploads,delPicture} from "../utils/cloudinary.js";
 
 // @desc Authenticate restaurant owner
 // @route POST /api/v1/restaurant/owner/auth
@@ -488,7 +489,51 @@ const restaurantProfile = asyncHandler(async (req, res) => {
   }
 })
 
+//@desc route checking restaurant profile.
+//@route POST /api/v1/restaurant/owner/add/pictures
+// @access Private/RestaurantOwner
+const addPictures = asyncHandler(async (req, res) => {
+  try {
+    const findRestaurant = await Restaurant.findOne({ owner: req.user._id })
+    if (findRestaurant) {
+      const pictures = await uploads(findRestaurant._id, req.files);
+      console.log(pictures);
+      findRestaurant.pictures.push(...pictures);
+      findRestaurant.save().then(() => {
+        return res.status(200).json(findRestaurant);
+      }).catch((err) => { return res.status(400).json({ err: err }) });
+    }
+    else {
+      return res.status(403).json({ message: "unAuthorized.." })
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Server error');
+  }
+});
+
+//@desc route checking restaurant profile.
+//@route POST /api/v1/restaurant/owner/del/picture
+// @access Private/RestaurantOwner
+const removePicture = asyncHandler(async (req, res) => {
+  try {
+    const {publicId} = req.body;
+    const result = await delPicture(publicId, req.user._id);
+    if (result) {
+      // Picture deleted successfully, and MongoDB updated
+      return res.status(200).json({ message: "Picture deleted successfully" });
+    } else {
+      // Picture not deleted successfully
+      return res.status(403).json({ message: "Failed to delete picture" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Server error");
+  }
+});
 export {
+  addPictures,
+  removePicture,
   toggleAutoApprove,
   restaurantProfile,
   addTables,
