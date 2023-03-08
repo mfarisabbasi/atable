@@ -164,75 +164,146 @@ const testResOwner = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
+
+
 //@desc Show all reservations for current date
 // @route GET /api/v1/restaurant/owner/show/todayreservations
 // @access Private/RestaurantOwners
-const getTodayBookings = asyncHandler(async (req, res) => {
+const getTodayBookings = async (req, res) => {
   try {
-
-    const Bookings = await Reservation.aggregate([
-      {
-        $match: {
-          '$details.date': { $gte: new Date().setHours(0, 0, 0, 0), $lt: new Date().setHours(23, 59, 59, 999) }
-        }
-      }
-    ])
-    if (Bookings.length === 0) {
-      return res.status(200).json({ message: "No Bookings found today." })
-    } else {
-      const filterBookings = Bookings.filter(x => x.restaurant === req.user.restaurants)
-      return res.status(200).json({ filterBookings });
+    const owner_id = req.user._id;
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
     }
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id })
+    if (!findRestaurant) {
+      return res.status(403).json({ message: "UnAuthorized" })
+    }
+    const today = new Date(); // get the current date
+    // find all reservations that match the query
+    Reservation.find({
+      'restaurant': findRestaurant._id,
+      'reservation_status': "Approved",
+      'details.date': {
+        $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+        $lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+      }
+    })
+      .exec()
+      .then((reservations) => {
+        if (reservations.length === 0) {
+          return res.status(200).json({ message: "No Bookings Found For Today." })
+        } else {
+          return res.status(200).json({ reservations })
+        }
+      })
+      .catch((error) => {
+        console.error(error); // handle any errors
+      });
   }
   catch (error) {
     return res.status(400).json(error)
   }
-})
+}
+
+
+
 //@desc Check Reservations for current month..
 // @route GET /api/v1/restaurant/owner/show/monthlyreservations
 // @access Private/RestaurantOwner
-const checkMonthlyReservation = asyncHandler(async (req, res) => {
+const checkMonthlyReservation = async (req, res) => {
   try {
-    let monthBookings = []
-
-    const date = new Date();
-    const getMonth = date.getMonth() + 1;
-    const getYear = date.getFullYear();
-
-    monthBookings = await Reservation.find({
-      '$details.date': {
-
-        $get: new Date(`${getYear}-${getMonth}-01`),
-        lte: new Date(`${getYear}-${getMonth}-01`)
-      }
-    })
-
-    if (!monthBookings || monthBookings.length === 0) {
-      return res.status(200).json({ message: "No Reservations for this months..." })
-    } else {
-      const monthFilter = monthBookings.filter(x => x.restaurant === req.user.restaurants)
-      return res.status(200).json({ BookingsFound: monthFilter })
+    const owner_id = req.user._id;
+    console.log(owner_id)
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
     }
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id }) // Add 'await' keyword here
+    if (!findRestaurant) {
+      return res.status(403).json({ message: "UnAuthorized" })
+    }
+    console.log(findRestaurant)
+    const today = new Date();
+    Reservation.aggregate([
+      {
+        $match: {
+          'restaurant': findRestaurant._id,
+          'reservation_status': 'Approved',
+          'details.date': {
+            $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+            $lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $month: '$details.date' },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          month: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$_id', 1] }, then: 'January' },
+                { case: { $eq: ['$_id', 2] }, then: 'February' },
+                { case: { $eq: ['$_id', 3] }, then: 'March' },
+                { case: { $eq: ['$_id', 4] }, then: 'April' },
+                { case: { $eq: ['$_id', 5] }, then: 'May' },
+                { case: { $eq: ['$_id', 6] }, then: 'June' },
+                { case: { $eq: ['$_id', 7] }, then: 'July' },
+                { case: { $eq: ['$_id', 8] }, then: 'August' },
+                { case: { $eq: ['$_id', 9] }, then: 'September' },
+                { case: { $eq: ['$_id', 10] }, then: 'October' },
+                { case: { $eq: ['$_id', 11] }, then: 'November' },
+                { case: { $eq: ['$_id', 12] }, then: 'December' },
+              ],
+              default: 'Unknown'
+            }
+          },
+          count: 1,
+          _id: 0
+        }
+      }
+    ]).then((result) => {
+      if (result.length === 0) {
+        return res.status(200).json({ message: "No Reservations Found for any month.." });
+      } else {
+        return res.status(200).json(result); // return the entire response object
+      }
+    }).catch((err) => { return res.status(400).json({ err: err }) });
+
+
   }
   catch (error) {
-    return res.status(400).json(error)
+    console.log(error);
+    return res.status(400).json({ error: "Something went wrong" });
   }
+}
 
-})
+
 //@desc Display All Reservations Requests.
 // @route GET /api/v1/restaurant/owner/show/allreservations
 // @access Private/RestaurantOwner
-const disaplyReservationsRequest = asyncHandler(async (req, res) => {
-
-  let allRes = [];
+const disaplyReservationsRequest = async (req, res) => {
   try {
-    const id = req.user.restaurants;
+
+    const owner_id = req.user._id;
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
+    }
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id })
+    if (!findRestaurant) {
+      return res.status(403).json({ message: "UnAuthorized" })
+    }
     allRes = await Reservation.find({
       $and: [
         { reservation_status: true },
-        { restaurant: id }
+        { restaurant: findRestaurant._id }
       ]
     })
+
     if (allRes.length !== 0) {
       return res.status(200).json({ allRes })
     } else {
@@ -242,7 +313,8 @@ const disaplyReservationsRequest = asyncHandler(async (req, res) => {
   catch (error) {
     return res.status(400).json({ error })
   }
-})
+}
+
 //@desc Approve Reservation Request By Id.
 // @route POST /api/v1/restaurant/owner/reservation/approve
 // @access Private/RestaurantOwner
@@ -250,9 +322,9 @@ const approveReservationById = async (req, res) => {
 
   try {
     const { id } = req.body;
-    
+
     const owner_id = req.user._id;
-    
+
     if (!id) {
       return res.status(400).json({ message: "something bad happened. Please try again." })
     }
