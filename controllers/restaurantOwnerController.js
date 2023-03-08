@@ -321,27 +321,30 @@ const cancelReservationById = asyncHandler(async (req, res) => {
 //@desc Add Opening Slots For Restaurant for the Specific Day.
 // @route POST /api/v1/restaurant/owner/openslots/add
 // @access Private/RestaurantOwner
-const addRestaurantOpeningSlots = asyncHandler(async (req, res) => {
+const addRestaurantOpeningSlots = async (req, res) => {
   try {
+    const { day, time } = req.body;
     const owner_id = req.user._id;
-    // Find the restaurant object owned by the authenticated user
-    const findRestaurant = await Restaurant.find({ owner: owner_id })
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
+    }
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id })
 
     if (findRestaurant) {
       // Check if opening hours already exist for the day specified in the request
-      const findhours = findRestaurant.openingHours.find(x => x.day === resHours.day);
+      const findhours = findRestaurant.openingHours.find(x => x.day === day);
       if (findhours) {
 
-        findhours.time = resHours.time;
+        findhours.time = time;
       }
       else {
         // Add the new opening hours for the day to the restaurant object's openingHours array
-        findRestaurant.openingHours.push(resHours);
+        findRestaurant.openingHours.push({ day, time });
       }
 
       // Save the updated restaurant object in the database and return a success message in a JSON response
       findRestaurant.save().then(() => {
-        return res.status(201).json({ message: "opening slot updated Successfully.." })
+        return res.status(201).json({ findRestaurant, message: "opening slot updated Successfully.." })
       }).
         catch(err => { return res.status(400).json({ message: err }) })
     }
@@ -354,27 +357,30 @@ const addRestaurantOpeningSlots = asyncHandler(async (req, res) => {
 
     return res.status(400).json({ message: "something bad occured..." })
   }
-})
+}
+
 //@desc Add Closing Slots For Restaurant for the Specific Day.
 //@route POST /api/v1/restaurant/owner/closeslots/add
 // @access Private/RestaurantOwner
-const addRestaurantClosingSlots = asyncHandler(async (req, res) => {
+const addRestaurantClosingSlots = async (req, res) => {
   try {
-    const { resHours } = req.body.resHours;
+    const { day, time } = req.body;
     const owner_id = req.user._id;
+    if (!owner_id) {
+      return res.status(401).json({ message: "Session Expired Please login to Continue" })
+    }
     const findRestaurant = await Restaurant.findOne({ owner: owner_id })
-
     if (findRestaurant) {
-      const findhours = findRestaurant.closingHours.find(x => x.day === resHours.day);
+      const findhours = findRestaurant.closingHours.find(x => x.day === day);
       if (findhours) {
-        findhours.time = resHours.time;
+        findhours.time = time;
       }
       else {
-        findRestaurant.closingHours.push(resHours);
+        findRestaurant.closingHours.push({ day, time });
       }
 
       findRestaurant.save().then(() => {
-        return res.status(201).json({ message: "closing slot updated Successfully.." })
+        return res.status(201).json({ findRestaurant, message: "closing slot updated Successfully.." })
       }).
         catch(err => { return res.status(400).json({ message: err }) })
 
@@ -387,7 +393,9 @@ const addRestaurantClosingSlots = asyncHandler(async (req, res) => {
   catch (error) {
     return res.status(400).json({ message: "something bad occured..." })
   }
-})
+}
+
+
 //@desc A toggle Button for on or of for auto approve.
 //@route POST /api/v1/restaurant/owner/reservation/toggle/auto
 // @access Private/RestaurantOwner
