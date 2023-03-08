@@ -472,10 +472,10 @@ const addTables = asyncHandler(async (req, res) => {
 //@desc route checking restaurant profile.
 //@route GET /api/v1/restaurant/owner/show/profile
 // @access Private/RestaurantOwner
-const restaurantProfile = asyncHandler(async (req, res) => {
+const restaurantProfile = async (req, res) => {
   try {
-    const res_id = req.user.restaurants;
-    const findRes = await Restaurant.findOne({ _id: res_id, owner: req.user._id })
+    const owner_id = req.user._id;
+    const findRes = await Restaurant.findOne({ owner: owner_id })
 
     if (findRes) {
       return res.status(200).json({ findRes })
@@ -487,7 +487,7 @@ const restaurantProfile = asyncHandler(async (req, res) => {
   } catch (err) {
     return res.status(400).json({ error: err })
   }
-})
+}
 
 //@desc route checking restaurant profile.
 //@route POST /api/v1/restaurant/owner/add/pictures
