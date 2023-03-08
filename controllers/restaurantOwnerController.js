@@ -169,7 +169,7 @@ const testResOwner = asyncHandler(async (req, res) => {
 //@desc Show all reservations for current date
 // @route GET /api/v1/restaurant/owner/show/todayreservations
 // @access Private/RestaurantOwners
-const getTodayBookings = async (req, res) => {
+const getTodayBookings = asyncHandler(async (req, res) => {
   try {
     const owner_id = req.user._id;
     if (!owner_id) {
@@ -204,14 +204,14 @@ const getTodayBookings = async (req, res) => {
   catch (error) {
     return res.status(400).json(error)
   }
-}
+});
 
 
 
 //@desc Check Reservations for current month..
 // @route GET /api/v1/restaurant/owner/show/monthlyreservations
 // @access Private/RestaurantOwner
-const checkMonthlyReservation = async (req, res) => {
+const checkMonthlyReservation = asyncHandler(async (req, res) => {
   try {
     const owner_id = req.user._id;
     console.log(owner_id)
@@ -280,13 +280,13 @@ const checkMonthlyReservation = async (req, res) => {
     console.log(error);
     return res.status(400).json({ error: "Something went wrong" });
   }
-}
+});
 
 
 //@desc Display All Reservations Requests.
 // @route GET /api/v1/restaurant/owner/show/allreservations
 // @access Private/RestaurantOwner
-const disaplyReservationsRequest = async (req, res) => {
+const disaplyReservationsRequest = asyncHandler(async (req, res) => {
   try {
 
     const owner_id = req.user._id;
@@ -313,12 +313,12 @@ const disaplyReservationsRequest = async (req, res) => {
   catch (error) {
     return res.status(400).json({ error })
   }
-}
+});
 
 //@desc Approve Reservation Request By Id.
 // @route POST /api/v1/restaurant/owner/reservation/approve
 // @access Private/RestaurantOwner
-const approveReservationById = async (req, res) => {
+const approveReservationById = asyncHandler(async (req, res) => {
 
   try {
     const { id } = req.body;
@@ -369,13 +369,13 @@ const approveReservationById = async (req, res) => {
   catch (error) {
     return res.status(401).json({ error: error })
   }
-}
+});
 
 
 //@desc Cancel Reservation Request By Id.
 // @route POST /api/v1/restaurant/owner/reservation/cancel
 // @access Private/RestaurantOwner
-const cancelReservationById = async (req, res) => {
+const cancelReservationById = asyncHandler(async (req, res) => {
 
   try {
     const { id } = req.body;
@@ -415,13 +415,13 @@ const cancelReservationById = async (req, res) => {
   catch (error) {
     return res.status(401).json({ error: error })
   }
-}
+});
 
 
 //@desc Add Opening Slots For Restaurant for the Specific Day.
 // @route POST /api/v1/restaurant/owner/openslots/add
 // @access Private/RestaurantOwner
-const addRestaurantOpeningSlots = async (req, res) => {
+const addRestaurantOpeningSlots = asyncHandler(async (req, res) => {
   try {
     const { day, time } = req.body;
     const owner_id = req.user._id;
@@ -457,12 +457,12 @@ const addRestaurantOpeningSlots = async (req, res) => {
 
     return res.status(400).json({ message: "something bad occured..." })
   }
-}
+});
 
 //@desc Add Closing Slots For Restaurant for the Specific Day.
 //@route POST /api/v1/restaurant/owner/closeslots/add
 // @access Private/RestaurantOwner
-const addRestaurantClosingSlots = async (req, res) => {
+const addRestaurantClosingSlots = asyncHandler(async (req, res) => {
   try {
     const { day, time } = req.body;
     const owner_id = req.user._id;
@@ -493,13 +493,13 @@ const addRestaurantClosingSlots = async (req, res) => {
   catch (error) {
     return res.status(400).json({ message: "something bad occured..." })
   }
-}
+});
 
 
 //@desc A toggle Button for on or of for auto approve.
 //@route POST /api/v1/restaurant/owner/reservation/toggle/auto
 // @access Private/RestaurantOwner
-const toggleAutoApprove = async (req, res) => {
+const toggleAutoApprove = asyncHandler(async (req, res) => {
   try {
     const owner_id = req.user._id;
     if (!owner_id) {
@@ -524,13 +524,13 @@ const toggleAutoApprove = async (req, res) => {
   catch (err) {
     return res.status(400).json({ message: err })
   }
-}
+});
 
 
 //@desc route for adding no of tables with capacity
 //@route POST /api/v1/restaurant/owner/reservation/add/tables
 // @access Private/RestaurantOwner
-const addTables = async (req, res) => {
+const addTables = asyncHandler(async (req, res) => {
   try {
     const { capacity, quantity } = req.body;
     console.log(capacity, quantity)
@@ -565,14 +565,14 @@ const addTables = async (req, res) => {
     console.log(err);
     return res.status(400).json({ err });
   }
-};
+});
 
 
 
 //@desc route checking restaurant profile.
 //@route GET /api/v1/restaurant/owner/show/profile
 // @access Private/RestaurantOwner
-const restaurantProfile = async (req, res) => {
+const restaurantProfile = asyncHandler(async (req, res) => {
   try {
     const owner_id = req.user._id;
     const findRes = await Restaurant.findOne({ owner: owner_id })
@@ -587,7 +587,7 @@ const restaurantProfile = async (req, res) => {
   } catch (err) {
     return res.status(400).json({ error: err })
   }
-}
+})
 
 //@desc route checking restaurant profile.
 //@route POST /api/v1/restaurant/owner/add/pictures
