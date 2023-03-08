@@ -438,37 +438,50 @@ const autoApproveReservations = asyncHandler(async (req, res) => {
     return res.status(400).json({ err })
   }
 })
+
+
 //@desc route for adding no of tables with capacity
 //@route POST /api/v1/restaurant/owner/reservation/add/tables
 // @access Private/RestaurantOwner
-const addTables = asyncHandler(async (req, res) => {
+const addTables = async (req, res) => {
   try {
     const { capacity, quantity } = req.body;
-    const res_id = req.user.restaurants;
-    const findRes = await Restaurant.findOne({ _id: res_id, owner: req.user._id })
+    console.log(capacity, quantity)
+    const owner_id = req.user._id;
+    const findRestaurant = await Restaurant.findOne({ owner: owner_id });
 
-    if (findRes) {
-      const findTable = findRes.tableDetails.find(element => element.capacity === capacity)
-      if (findTable) {
-        findTable.quantity += quantity;
+    if (findRestaurant) {
+      // Check if opening hours already exist for the day specified in the request
+      const findtable = findRestaurant.tablesDetails.find(table => table.capacity == capacity);
+      console.log(findtable);
+      if (findtable) {
+
+        findtable.quantity = quantity + findtable.quantity;
       }
       else {
-        findRes.tableDetails.push({ capacity, quantity })
+        // Add the new opening hours for the day to the restaurant object's openingHours array
+        findRestaurant.tablesDetails.push({ capacity, quantity });
       }
-      findRes.save().then(() => {
-        return res.status(201).json({ message: "table added Successfully" })
-      }).catch((err) => {
-        return res.status(400).json({ message: err })
-      })
+
+      // Save the updated restaurant object in the database and return a success message in a JSON response
+      findRestaurant.save().then(() => {
+        return res.status(201).json({ findRestaurant, message: "table added successfully" })
+      }).
+        catch(err => { return res.status(400).json({ message: err }) })
     }
     else {
-      return res.status(400).json({ message: 'unAuthorized.' })
+
+      return res.status(403).json({ message: "unAuthorized..." })
     }
   }
   catch (err) {
-    return res.status(400).json({ err })
+    console.log(err);
+    return res.status(400).json({ err });
   }
-})
+};
+
+
+
 //@desc route checking restaurant profile.
 //@route GET /api/v1/restaurant/owner/show/profile
 // @access Private/RestaurantOwner
