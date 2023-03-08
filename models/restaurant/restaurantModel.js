@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import cloudinary from ("cloudinary").v2;
 
 const restaurantSchema = mongoose.Schema(
   {
@@ -34,7 +35,10 @@ const restaurantSchema = mongoose.Schema(
         time: { type: String }
       }
     ],
-    images: [{ type: String }],
+    pictures: [{
+      url: String,
+      public_id: String
+    }],
     reviews: [
       {
         user: {
@@ -85,22 +89,32 @@ const restaurantSchema = mongoose.Schema(
     totalTables: {
       type: Number
     },
-    tablesDetails:
-      [
-        {
-          capacity: {
-            type: Number,
-          },
-          quantity: {
-            type: Number
-          }
+    tablesDetails: [
+      {
+        capacity: {
+          type: Number,
+        },
+        quantity: {
+          type: Number,
+          default: 0 
         }
-      ],
+      }
+    ]
   },
   {
     timestamps: true,
   }
 );
+
+// if new restaurant is added then make a new folder in a cloudinary, name it with the id of restaurant id.
+restaurantSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    const folderName = `restaurants/${this._id}`;
+    const folder = await cloudinary.api.create_folder(folderName);
+    this.folder = folderName;
+  }
+  next();
+});
 
 restaurantSchema.pre('save', function (next) {
   const totalTables = this.tablesDetails.reduce((acc, table) => acc + table.quantity, 0);
