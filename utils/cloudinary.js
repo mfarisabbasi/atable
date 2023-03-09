@@ -1,4 +1,4 @@
-import cloudinary from "cloudinary".v2;
+import cloudinary from "cloudinary";
 import Restaurant from "../models/restaurant/restaurantModel.js";
 
 cloudinary.config({
