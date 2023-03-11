@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import cloudinary from ("cloudinary").v2;
+import cloudinary from "cloudinary";
 
 const restaurantSchema = mongoose.Schema(
   {
